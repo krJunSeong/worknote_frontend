@@ -1,0 +1,24 @@
+.language-selector {
+  display: inline-flex;
+  padding: 4px;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.language-button {
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  padding: 7px 11px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.language-button.active {
+  background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 1px 5px rgba(15, 23, 42, 0.12);
+}
