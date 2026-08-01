@@ -32,6 +32,12 @@ export function LanguageProvider({ children }) {
       return savedLanguage;
     }
 
+    const browserLanguage = navigator.language.toLowerCase();
+
+    if (browserLanguage.startsWith("ja")) {
+        return "ja";
+    }
+
     return "ko";
   });
 
