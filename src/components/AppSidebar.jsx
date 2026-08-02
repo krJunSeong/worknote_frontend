@@ -45,6 +45,18 @@ function SidebarIcon({ name }) {
     );
   }
 
+  if (name === "report") {
+    return (
+      <svg {...commonProps}>
+        <path d="M6 3h8l4 4v14H6z" />
+        <path d="M14 3v5h5" />
+        <path d="M9 16v-3" />
+        <path d="M12 16v-6" />
+        <path d="M15 16v-2" />
+      </svg>
+    );
+  }
+
   if (name === "logout") {
     return (
       <svg {...commonProps}>
@@ -135,6 +147,23 @@ function AppSidebar({ collapsed, nickname, onLogout, onToggle }) {
             </span>
             <span className="app-nav-label">
               {t("navigation.workLogCreate")}
+            </span>
+          </NavLink>
+
+          <div className="app-nav-group-label">
+            {t("navigation.aiReport")}
+          </div>
+
+          <NavLink
+            to="/report"
+            title={collapsed ? t("navigation.aiReport") : undefined}
+            className={linkClassName}
+          >
+            <span className="app-nav-icon">
+              <SidebarIcon name="report" />
+            </span>
+            <span className="app-nav-label">
+              {t("navigation.aiReport")}
             </span>
           </NavLink>
         </nav>

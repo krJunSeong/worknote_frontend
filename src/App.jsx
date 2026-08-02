@@ -11,6 +11,7 @@ import SignupPage from "./pages/SignupPage";
 import DashboardPage from "./pages/DashboardPage";
 import WorkLogListPage from "./pages/WorkLogListPage";
 import WorkLogEditorPage from "./pages/WorkLogEditorPage";
+import ReportPage from "./pages/ReportPage";
 import { useLanguage } from "./i18n/LanguageContext";
 
 function getInitialRoute() {
@@ -52,6 +53,7 @@ function App() {
             path="/work/edit/:workLogId"
             element={<WorkLogEditorPage />}
           />
+          <Route path="/report" element={<ReportPage />} />
         </Route>
 
         <Route

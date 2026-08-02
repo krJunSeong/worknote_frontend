@@ -26,6 +26,10 @@ function AppLayout() {
   }, [collapsed]);
 
   const pageTitle = useMemo(() => {
+    if (location.pathname.startsWith("/report")) {
+      return t("navigation.aiReport");
+    }
+
     if (location.pathname.startsWith("/work/create")) {
       return t("navigation.workLogCreate");
     }
