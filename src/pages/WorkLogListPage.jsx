@@ -10,9 +10,13 @@ import "./WorkLogListPage.css";
 
 const parseTechTags = (techTags) => {
   if (!techTags) return [];
+
   if (Array.isArray(techTags)) {
-    return techTags.map((tag) => String(tag).trim()).filter(Boolean);
+    return techTags
+      .map((tag) => String(tag).trim())
+      .filter(Boolean);
   }
+
   if (typeof techTags !== "string") return [];
 
   const trimmed = techTags.trim();
@@ -20,23 +24,31 @@ const parseTechTags = (techTags) => {
 
   try {
     const parsed = JSON.parse(trimmed);
+
     if (Array.isArray(parsed)) {
-      return parsed.map((tag) => String(tag).trim()).filter(Boolean);
+      return parsed
+        .map((tag) => String(tag).trim())
+        .filter(Boolean);
     }
   } catch {
     // JSON 배열이 아니면 쉼표 구분 문자열로 처리한다.
   }
 
-  return trimmed.split(",").map((tag) => tag.trim()).filter(Boolean);
+  return trimmed
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
 };
 
 const parseInterviewQuestions = (questions) => {
   if (!questions) return [];
+
   if (Array.isArray(questions)) {
     return questions
       .map((question) => String(question).trim())
       .filter(Boolean);
   }
+
   if (typeof questions !== "string") return [];
 
   const trimmed = questions.trim();
@@ -44,6 +56,7 @@ const parseInterviewQuestions = (questions) => {
 
   try {
     const parsed = JSON.parse(trimmed);
+
     if (Array.isArray(parsed)) {
       return parsed
         .map((question) => String(question).trim())
@@ -66,6 +79,7 @@ const parseInterviewQuestions = (questions) => {
 
 const formatDateTime = (dateTime, language) => {
   if (!dateTime) return "";
+
   const date = new Date(dateTime);
   if (Number.isNaN(date.getTime())) return dateTime;
 
@@ -81,6 +95,23 @@ const formatDateTime = (dateTime, language) => {
   ).format(date);
 };
 
+const SearchIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-3.5-3.5" />
+  </svg>
+);
+
 function WorkLogListPage() {
   const navigate = useNavigate();
   const { language, t } = useLanguage();
@@ -91,14 +122,52 @@ function WorkLogListPage() {
   const [deletingId, setDeletingId] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const sortedWorkLogs = useMemo(() => {
-    return [...workLogs].sort((first, second) => {
-      return (
-        new Date(second.createdAt).getTime() -
-        new Date(first.createdAt).getTime()
-      );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [difficultyFilter, setDifficultyFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
+
+  const visibleWorkLogs = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    const filtered = workLogs.filter((workLog) => {
+      const difficulty = getDifficultyClassName(workLog.difficulty);
+
+      if (
+        difficultyFilter !== "all" &&
+        difficulty !== difficultyFilter
+      ) {
+        return false;
+      }
+
+      if (!normalizedQuery) return true;
+
+      const searchableText = [
+        workLog.title,
+        workLog.content,
+        workLog.aiSummary,
+        ...parseTechTags(workLog.techTags),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(normalizedQuery);
     });
-  }, [workLogs]);
+
+    return [...filtered].sort((first, second) => {
+      const firstTime = new Date(first.createdAt).getTime();
+      const secondTime = new Date(second.createdAt).getTime();
+
+      return sortOrder === "oldest"
+        ? firstTime - secondTime
+        : secondTime - firstTime;
+    });
+  }, [workLogs, searchQuery, difficultyFilter, sortOrder]);
+
+  const hasActiveFilters =
+    searchQuery.trim().length > 0 ||
+    difficultyFilter !== "all" ||
+    sortOrder !== "newest";
 
   const fetchWorkLogs = async () => {
     try {
@@ -137,20 +206,47 @@ function WorkLogListPage() {
     }
   };
 
+  const resetFilters = () => {
+    setSearchQuery("");
+    setDifficultyFilter("all");
+    setSortOrder("newest");
+  };
+
+  const difficultyFilters = [
+    ["all", t("workLog.filterAll")],
+    ["beginner", t("difficulty.beginner")],
+    ["intermediate", t("difficulty.intermediate")],
+    ["advanced", t("difficulty.advanced")],
+    ["unclassified", t("difficulty.unclassified")],
+  ];
+
   return (
     <main className="work-list-page">
       <header className="work-list-header">
-        <div>
-          <p className="page-eyebrow">{t("workLog.historyLabel")}</p>
-          <h1>{t("workLog.listTitle")}</h1>
-          <p>{t("workLog.listDescription")}</p>
-        </div>
+        <p className="page-eyebrow">{t("workLog.historyLabel")}</p>
+        <h1>{t("workLog.listTitle")}</h1>
+        <p>{t("workLog.listDescription")}</p>
+      </header>
 
-        <div className="work-list-header-actions">
-          <div className="work-list-total">
-            <span>{t("workLog.totalEntries")}</span>
-            <strong>{sortedWorkLogs.length}</strong>
+      <section className="work-list-records-section">
+        <div className="work-list-section-header">
+          <div className="work-list-section-title-area">
+            <p className="work-list-section-label">
+              {t("workLog.totalEntries")}
+            </p>
+
+            <div className="work-list-title-row">
+              <h2>{t("workLog.recordsSectionTitle")}</h2>
+              <span className="work-list-count-badge">
+                {workLogs.length}
+              </span>
+            </div>
+
+            <p className="work-list-section-description">
+              {t("workLog.recordsSectionDescription")}
+            </p>
           </div>
+
           <button
             type="button"
             className="work-list-create-button"
@@ -160,132 +256,219 @@ function WorkLogListPage() {
             {t("navigation.workLogCreate")}
           </button>
         </div>
-      </header>
 
-      {errorMessage && (
-        <div className="work-list-error" role="alert">
-          <p>{errorMessage}</p>
-          <button type="button" onClick={fetchWorkLogs}>
-            {t("common.retry")}
-          </button>
-        </div>
-      )}
+        <div className="work-list-toolbar">
+          <label className="work-list-search">
+            <span className="work-list-search-icon">
+              <SearchIcon />
+            </span>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder={t("workLog.searchPlaceholder")}
+              aria-label={t("workLog.searchPlaceholder")}
+            />
+          </label>
 
-      {loading ? (
-        <div className="work-list-state">
-          <div className="work-list-spinner" />
-          <p>{t("common.loading")}</p>
-        </div>
-      ) : sortedWorkLogs.length === 0 ? (
-        <div className="work-list-empty">
-          <div className="work-list-empty-art" aria-hidden="true">
-            <span>✦</span>
+          <div
+            className="work-list-filter-chips"
+            role="group"
+            aria-label={t("workLog.difficultyFilter")}
+          >
+            {difficultyFilters.map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                className={
+                  difficultyFilter === value ? "is-active" : ""
+                }
+                onClick={() => setDifficultyFilter(value)}
+                aria-pressed={difficultyFilter === value}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-          <h2>{t("workLog.emptyTitle")}</h2>
-          <p>{t("workLog.emptyDescription")}</p>
-          <button type="button" onClick={() => navigate("/work/create")}>
-            {t("navigation.workLogCreate")}
-          </button>
+
+          <div className="work-list-toolbar-end">
+            <label className="work-list-sort">
+              <span>{t("workLog.sortLabel")}</span>
+              <select
+                value={sortOrder}
+                onChange={(event) => setSortOrder(event.target.value)}
+              >
+                <option value="newest">
+                  {t("workLog.sortNewest")}
+                </option>
+                <option value="oldest">
+                  {t("workLog.sortOldest")}
+                </option>
+              </select>
+            </label>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                className="work-list-reset-button"
+                onClick={resetFilters}
+              >
+                {t("workLog.filterReset")}
+              </button>
+            )}
+          </div>
         </div>
-      ) : (
-        <section className="work-list-grid">
-          {sortedWorkLogs.map((workLog) => {
-            const tags = parseTechTags(workLog.techTags);
-            const questions = parseInterviewQuestions(
-              workLog.interviewQuestions
-            );
-            const difficultyClass = getDifficultyClassName(
-              workLog.difficulty
-            );
 
-            return (
-              <article className="work-record-card" key={workLog.id}>
-                <header className="work-record-header">
-                  <div className="work-record-title-area">
-                    <div className="work-record-meta">
-                      <time>
-                        {formatDateTime(workLog.createdAt, language)}
-                      </time>
-                      <span
-                        className={`work-record-difficulty difficulty-${difficultyClass}`}
+        <div className="work-list-result-summary" aria-live="polite">
+          <strong>{visibleWorkLogs.length}</strong>
+          <span>
+            {t("workLog.visibleEntries")} / {workLogs.length}
+          </span>
+        </div>
+
+        {errorMessage && (
+          <div className="work-list-error" role="alert">
+            <p>{errorMessage}</p>
+            <button type="button" onClick={fetchWorkLogs}>
+              {t("common.retry")}
+            </button>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="work-list-state">
+            <div className="work-list-spinner" />
+            <p>{t("common.loading")}</p>
+          </div>
+        ) : workLogs.length === 0 ? (
+          <div className="work-list-empty">
+            <div className="work-list-empty-art" aria-hidden="true">
+              <span>✦</span>
+            </div>
+            <h2>{t("workLog.emptyTitle")}</h2>
+            <p>{t("workLog.emptyDescription")}</p>
+            <button type="button" onClick={() => navigate("/work/create")}>
+              {t("navigation.workLogCreate")}
+            </button>
+          </div>
+        ) : visibleWorkLogs.length === 0 ? (
+          <div className="work-list-no-results">
+            <div className="work-list-no-results-icon" aria-hidden="true">
+              <SearchIcon />
+            </div>
+            <h2>{t("workLog.noSearchResultsTitle")}</h2>
+            <p>{t("workLog.noSearchResultsDescription")}</p>
+            <button type="button" onClick={resetFilters}>
+              {t("workLog.filterReset")}
+            </button>
+          </div>
+        ) : (
+          <div className="work-list-grid">
+            {visibleWorkLogs.map((workLog) => {
+              const tags = parseTechTags(workLog.techTags);
+              const questions = parseInterviewQuestions(
+                workLog.interviewQuestions
+              );
+              const difficultyClass = getDifficultyClassName(
+                workLog.difficulty
+              );
+
+              return (
+                <article
+                  className={`work-record-card difficulty-card-${difficultyClass}`}
+                  key={workLog.id}
+                >
+                  <header className="work-record-header">
+                    <div className="work-record-title-area">
+                      <div className="work-record-meta">
+                        <time>
+                          {formatDateTime(workLog.createdAt, language)}
+                        </time>
+                        <span
+                          className={`work-record-difficulty difficulty-${difficultyClass}`}
+                        >
+                          {translateDifficulty(workLog.difficulty, t)}
+                        </span>
+                      </div>
+                      <h2>{workLog.title}</h2>
+                    </div>
+
+                    <div className="work-record-actions">
+                      <button
+                        type="button"
+                        className="work-record-edit"
+                        onClick={() =>
+                          navigate(`/work/edit/${workLog.id}`, {
+                            state: { workLog },
+                          })
+                        }
+                        disabled={deletingId === workLog.id}
                       >
-                        {translateDifficulty(workLog.difficulty, t)}
-                      </span>
+                        {t("common.edit")}
+                      </button>
+                      <button
+                        type="button"
+                        className="work-record-delete"
+                        onClick={() => handleDelete(workLog.id)}
+                        disabled={deletingId === workLog.id}
+                      >
+                        {deletingId === workLog.id
+                          ? "..."
+                          : t("common.delete")}
+                      </button>
                     </div>
-                    <h2>{workLog.title}</h2>
-                  </div>
+                  </header>
 
-                  <div className="work-record-actions">
-                    <button
-                      type="button"
-                      className="work-record-edit"
-                      onClick={() =>
-                        navigate(`/work/edit/${workLog.id}`, {
-                          state: { workLog },
-                        })
-                      }
-                      disabled={deletingId === workLog.id}
-                    >
-                      {t("common.edit")}
-                    </button>
-                    <button
-                      type="button"
-                      className="work-record-delete"
-                      onClick={() => handleDelete(workLog.id)}
-                      disabled={deletingId === workLog.id}
-                    >
-                      {deletingId === workLog.id
-                        ? "..."
-                        : t("common.delete")}
-                    </button>
-                  </div>
-                </header>
-
-                <section className="work-record-content">
-                  <h3>{t("workLog.contentLabel")}</h3>
-                  <p>{workLog.content}</p>
-                </section>
-
-                <div className="work-record-insights">
-                  <section className="work-record-ai-summary">
-                    <div className="work-record-section-title">
-                      <span>AI</span>
-                      <h3>{t("workLog.aiSummary")}</h3>
-                    </div>
-                    <p>{workLog.aiSummary || t("common.noData")}</p>
+                  <section className="work-record-content">
+                    <h3>{t("workLog.contentLabel")}</h3>
+                    <p>{workLog.content}</p>
                   </section>
 
-                  <section className="work-record-tags">
-                    <h3>{t("workLog.techTags")}</h3>
-                    {tags.length > 0 ? (
-                      <div>
-                        {tags.map((tag) => (
-                          <span key={`${workLog.id}-${tag}`}>{tag}</span>
-                        ))}
+                  <div className="work-record-insights">
+                    <section className="work-record-ai-summary">
+                      <div className="work-record-section-title">
+                        <span>AI</span>
+                        <h3>{t("workLog.aiSummary")}</h3>
                       </div>
+                      <p>{workLog.aiSummary || t("common.noData")}</p>
+                    </section>
+
+                    <section className="work-record-tags">
+                      <h3>{t("workLog.techTags")}</h3>
+                      {tags.length > 0 ? (
+                        <div>
+                          {tags.map((tag) => (
+                            <span key={`${workLog.id}-${tag}`}>
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p>{t("common.noData")}</p>
+                      )}
+                    </section>
+                  </div>
+
+                  <section className="work-record-questions">
+                    <h3>{t("workLog.interviewQuestions")}</h3>
+                    {questions.length > 0 ? (
+                      <ol>
+                        {questions.map((question, index) => (
+                          <li key={`${workLog.id}-${index}`}>
+                            {question}
+                          </li>
+                        ))}
+                      </ol>
                     ) : (
                       <p>{t("common.noData")}</p>
                     )}
                   </section>
-                </div>
-
-                <section className="work-record-questions">
-                  <h3>{t("workLog.interviewQuestions")}</h3>
-                  {questions.length > 0 ? (
-                    <ol>
-                      {questions.map((question, index) => (
-                        <li key={`${workLog.id}-${index}`}>{question}</li>
-                      ))}
-                    </ol>
-                  ) : (
-                    <p>{t("common.noData")}</p>
-                  )}
-                </section>
-              </article>
-            );
-          })}
-        </section>
-      )}
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
     </main>
   );
 }

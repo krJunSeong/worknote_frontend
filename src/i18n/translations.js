@@ -136,6 +136,20 @@ const translations = {
       deleteSuccess:
         "업무일지가 삭제되었습니다.",
       totalEntries: "전체 기록",
+      recordsSectionTitle: "전체 업무 기록",
+      recordsSectionDescription:
+        "누적된 업무일지와 AI 분석 결과를 검색하고 난이도별로 확인할 수 있습니다.",
+      searchPlaceholder: "제목, 업무 내용, 기술 태그 검색",
+      difficultyFilter: "난이도 필터",
+      filterAll: "전체",
+      sortLabel: "정렬",
+      sortNewest: "최신순",
+      sortOldest: "오래된순",
+      filterReset: "필터 초기화",
+      visibleEntries: "표시 중",
+      noSearchResultsTitle: "조건에 맞는 기록이 없습니다.",
+      noSearchResultsDescription:
+        "검색어나 난이도 필터를 변경한 뒤 다시 확인해 주세요.",
       listTitle: "업무일지 기록",
       listDescription:
         "작성한 업무일지와 AI 분석 결과를 한 화면에서 확인하고 수정할 수 있습니다.",
@@ -446,7 +460,21 @@ const translations = {
         "業務日誌を修正しました。",
       deleteSuccess:
         "業務日誌を削除しました。",
-      totalEntries: "総記録数",
+      totalEntries: "全記録",
+      recordsSectionTitle: "すべての業務記録",
+      recordsSectionDescription:
+        "蓄積した業務日誌とAI分析結果を検索し、難易度別に確認できます。",
+      searchPlaceholder: "タイトル、業務内容、技術タグを検索",
+      difficultyFilter: "難易度フィルター",
+      filterAll: "すべて",
+      sortLabel: "並び順",
+      sortNewest: "新しい順",
+      sortOldest: "古い順",
+      filterReset: "フィルターをリセット",
+      visibleEntries: "表示中",
+      noSearchResultsTitle: "条件に一致する記録がありません。",
+      noSearchResultsDescription:
+        "検索語または難易度フィルターを変更してください。",
       listTitle: "業務日誌の記録",
       listDescription:
         "作成した業務日誌とAI分析結果を一つの画面で確認・編集できます。",
