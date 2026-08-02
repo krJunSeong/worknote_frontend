@@ -12,6 +12,7 @@ const translations = {
       retry: "다시 시도",
       loading: "불러오는 중입니다.",
       noData: "데이터가 없습니다.",
+      language: "언어 선택",
     },
 
     navigation: {
@@ -21,6 +22,12 @@ const translations = {
       logout: "로그아웃",
       user: "사용자",
       member: "WorkNote 멤버",
+      collapseSidebar: "사이드바 접기",
+      expandSidebar: "사이드바 펼치기",
+      workLogGroup: "업무일지",
+      workLogList: "업무일지 기록",
+      workLogCreate: "업무일지 작성",
+      workspace: "WORKSPACE",
     },
 
     auth: {
@@ -69,6 +76,10 @@ const translations = {
       nicknameLabel: "닉네임",
       noAccount: "아직 계정이 없나요?",
       hasAccount: "이미 계정이 있나요?",
+      signupHeroDescription:
+        "하루의 업무를 꾸준히 기록하고 AI 분석으로 기술 경험과 성과를 체계화하세요.",
+      passwordLengthGuide: "비밀번호는 5자 이상 12자 이하로 입력해 주세요.",
+      passwordLengthError: "비밀번호 양식이 맞지 않습니다. 5~12자로 입력해 주세요.",
     },
 
     workLog: {
@@ -125,6 +136,36 @@ const translations = {
       deleteSuccess:
         "업무일지가 삭제되었습니다.",
       totalEntries: "전체 기록",
+      listTitle: "업무일지 기록",
+      listDescription:
+        "작성한 업무일지와 AI 분석 결과를 한 화면에서 확인하고 수정할 수 있습니다.",
+      emptyTitle: "아직 업무 기록이 없습니다.",
+      emptyDescription:
+        "첫 업무일지를 작성하면 AI 요약, 기술 태그, 예상 면접 질문이 이곳에 표시됩니다.",
+      editorDescription:
+        "진행한 업무와 해결 과정을 구체적으로 작성하면 AI 분석 품질이 더 좋아집니다.",
+      completion: "작성 완성도",
+      completionDescription:
+        "제목과 구체적인 업무 내용을 입력하면 완성도가 올라갑니다.",
+      writeSectionTitle: "오늘의 업무를 기록해 주세요.",
+      editorContentPlaceholder:
+        "무엇을 했는지, 왜 했는지, 어떤 방법으로 해결했는지, 결과가 어땠는지 구체적으로 작성해 주세요.",
+      promptWhat: "무엇을 했나요?",
+      promptWhy: "왜 진행했나요?",
+      promptHow: "어떻게 해결했나요?",
+      promptResult: "결과는 어땠나요?",
+      flowTitle: "작성부터 AI 분석까지",
+      flowWriteTitle: "업무 내용 작성",
+      flowWriteDescription: "제목과 작업 내용을 구체적으로 입력합니다.",
+      flowAnalyzeTitle: "AI 분석",
+      flowAnalyzeDescription: "요약, 기술 태그, 난이도와 면접 질문을 생성합니다.",
+      flowSaveTitle: "기록 저장",
+      flowSaveDescription: "분석 결과와 업무 기록을 함께 저장합니다.",
+      tipTitle: "작성 팁",
+      tipDescription:
+        "문제 상황, 선택한 해결 방법, 적용한 기술, 결과를 함께 적으면 포트폴리오에 활용하기 좋은 분석이 생성됩니다.",
+      previewTitle: "생성될 AI 분석",
+      entryNotFound: "수정할 업무일지를 찾을 수 없습니다.",
     },
 
     dashboard: {
@@ -271,6 +312,7 @@ const translations = {
       retry: "再試行",
       loading: "読み込み中です。",
       noData: "データがありません。",
+      language: "言語選択",
     },
 
     navigation: {
@@ -280,6 +322,12 @@ const translations = {
       logout: "ログアウト",
       user: "ユーザー",
       member: "WorkNote メンバー",
+      collapseSidebar: "サイドバーを閉じる",
+      expandSidebar: "サイドバーを開く",
+      workLogGroup: "業務日誌",
+      workLogList: "業務日誌の記録",
+      workLogCreate: "業務日誌を作成",
+      workspace: "WORKSPACE",
     },
 
     auth: {
@@ -335,6 +383,11 @@ const translations = {
       nicknameLabel: "ニックネーム",
       noAccount: "アカウントをお持ちでない方",
       hasAccount: "すでにアカウントをお持ちの方",
+      signupHeroDescription:
+        "日々の業務を記録し、AI分析で技術経験と成果を体系的に整理しましょう。",
+      passwordLengthGuide: "パスワードは5文字以上12文字以下で入力してください。",
+      passwordLengthError:
+        "パスワード形式が正しくありません。5〜12文字で入力してください。",
     },
 
     workLog: {
@@ -394,6 +447,36 @@ const translations = {
       deleteSuccess:
         "業務日誌を削除しました。",
       totalEntries: "総記録数",
+      listTitle: "業務日誌の記録",
+      listDescription:
+        "作成した業務日誌とAI分析結果を一つの画面で確認・編集できます。",
+      emptyTitle: "まだ業務記録がありません。",
+      emptyDescription:
+        "最初の業務日誌を作成すると、AI要約、技術タグ、想定面接質問がここに表示されます。",
+      editorDescription:
+        "実施した業務と解決過程を具体的に書くほど、AI分析の品質が高まります。",
+      completion: "入力完成度",
+      completionDescription:
+        "タイトルと具体的な業務内容を入力すると完成度が上がります。",
+      writeSectionTitle: "今日の業務を記録してください。",
+      editorContentPlaceholder:
+        "何をしたか、なぜ行ったか、どのように解決したか、結果はどうだったかを具体的に入力してください。",
+      promptWhat: "何をしましたか？",
+      promptWhy: "なぜ行いましたか？",
+      promptHow: "どう解決しましたか？",
+      promptResult: "結果はどうでしたか？",
+      flowTitle: "入力からAI分析まで",
+      flowWriteTitle: "業務内容を入力",
+      flowWriteDescription: "タイトルと作業内容を具体的に入力します。",
+      flowAnalyzeTitle: "AI分析",
+      flowAnalyzeDescription: "要約、技術タグ、難易度、面接質問を生成します。",
+      flowSaveTitle: "記録を保存",
+      flowSaveDescription: "分析結果と業務記録を一緒に保存します。",
+      tipTitle: "入力のヒント",
+      tipDescription:
+        "課題、選んだ解決方法、使用技術、結果を一緒に書くと、ポートフォリオに活用しやすい分析が生成されます。",
+      previewTitle: "生成されるAI分析",
+      entryNotFound: "編集する業務日誌が見つかりません。",
     },
 
     dashboard: {

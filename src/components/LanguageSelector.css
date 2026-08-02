@@ -1,24 +1,62 @@
 .language-selector {
   display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 42px;
   padding: 4px;
-  border: 1px solid #dbe2ea;
-  border-radius: 10px;
-  background: #f8fafc;
-}
-
-.language-button {
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  padding: 7px 11px;
+  border: 1px solid #dbe3ee;
+  border-radius: 13px;
   color: #64748b;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
 }
 
-.language-button.active {
-  background: #ffffff;
-  color: #2563eb;
-  box-shadow: 0 1px 5px rgba(15, 23, 42, 0.12);
+.language-selector-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  color: #64748b;
+}
+
+.language-selector button {
+  min-width: 68px;
+  height: 32px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 9px;
+  color: #64748b;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.language-selector button:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+.language-selector button.is-active {
+  color: #ffffff;
+  background: #172033;
+  box-shadow: 0 7px 16px rgba(15, 23, 42, 0.18);
+}
+
+.language-selector.is-compact button {
+  min-width: 42px;
+}
+
+@media (max-width: 560px) {
+  .language-selector:not(.is-compact) button {
+    min-width: 46px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
+  .language-selector-icon {
+    display: none;
+  }
 }

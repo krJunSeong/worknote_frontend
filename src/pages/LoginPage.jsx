@@ -1,23 +1,74 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import LanguageSelector from "../components/LanguageSelector";
 import { useLanguage } from "../i18n/LanguageContext";
 import "./AuthPage.css";
 
+const PASSWORD_MIN_LENGTH = 5;
+const PASSWORD_MAX_LENGTH = 12;
+
 function LoginPage() {
   const navigate = useNavigate();
   const { t } = useLanguage();
+
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [credentialError, setCredentialError] = useState("");
+  const [failedFields, setFailedFields] = useState({
+    loginId: false,
+    password: false,
+  });
 
-  const login = async () => {
-    if (!loginId.trim()) return alert(t("auth.loginIdRequired"));
-    if (!password.trim()) return alert(t("auth.passwordRequired"));
+  const passwordFormatInvalid = useMemo(() => {
+    if (!password) {
+      return false;
+    }
+
+    return (
+      password.length < PASSWORD_MIN_LENGTH ||
+      password.length > PASSWORD_MAX_LENGTH
+    );
+  }, [password]);
+
+  const loginIdRequired = submitted && !loginId.trim();
+  const passwordRequired = submitted && !password;
+  const showPasswordFormatError =
+    (passwordTouched || submitted) && passwordFormatInvalid;
+
+  const handleLoginIdChange = (event) => {
+    setLoginId(event.target.value);
+    setCredentialError("");
+    setFailedFields((previous) => ({
+      ...previous,
+      loginId: false,
+    }));
+  };
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+    setCredentialError("");
+    setFailedFields((previous) => ({
+      ...previous,
+      password: false,
+    }));
+  };
+
+  const login = async (event) => {
+    event.preventDefault();
+    setSubmitted(true);
+
+    if (!loginId.trim() || !password || passwordFormatInvalid) {
+      return;
+    }
 
     try {
       setLoading(true);
+      setCredentialError("");
+
       const response = await api.post("/api/auth/login", {
         loginId: loginId.trim(),
         password,
@@ -27,20 +78,24 @@ function LoginPage() {
       localStorage.setItem("userId", String(response.data.userId));
       localStorage.setItem("loginId", response.data.loginId);
       localStorage.setItem("nickname", response.data.nickname);
-      navigate("/work", { replace: true });
+
+      navigate("/dashboard", { replace: true });
     } catch (error) {
       console.error("Login failed:", error);
+
       const serverMessage =
         error.response?.data?.message || error.response?.data?.error;
-      alert(serverMessage || t("auth.loginError"));
+
+      setCredentialError(serverMessage || t("auth.loginError"));
+      setFailedFields({ loginId: true, password: true });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter" && !loading) login();
-  };
+  const loginIdInvalid = loginIdRequired || failedFields.loginId;
+  const passwordInvalid =
+    passwordRequired || showPasswordFormatError || failedFields.password;
 
   return (
     <main className="auth-page">
@@ -49,6 +104,7 @@ function LoginPage() {
           <span className="auth-brand-mark">W</span>
           <span>WorkNote</span>
         </a>
+
         <LanguageSelector />
       </header>
 
@@ -57,10 +113,29 @@ function LoginPage() {
           <span className="auth-kicker">WORKNOTE · AI CAREER LOG</span>
           <h1>{t("auth.heroTitle")}</h1>
           <p>{t("auth.heroDescription")}</p>
+
           <div className="auth-feature-list">
-            <div className="auth-feature"><span>01</span><div><strong>{t("auth.featureRecordTitle")}</strong><p>{t("auth.featureRecordDescription")}</p></div></div>
-            <div className="auth-feature"><span>02</span><div><strong>{t("auth.featureAiTitle")}</strong><p>{t("auth.featureAiDescription")}</p></div></div>
-            <div className="auth-feature"><span>03</span><div><strong>{t("auth.featureReportTitle")}</strong><p>{t("auth.featureReportDescription")}</p></div></div>
+            <div className="auth-feature">
+              <span>01</span>
+              <div>
+                <strong>{t("auth.featureRecordTitle")}</strong>
+                <p>{t("auth.featureRecordDescription")}</p>
+              </div>
+            </div>
+            <div className="auth-feature">
+              <span>02</span>
+              <div>
+                <strong>{t("auth.featureAiTitle")}</strong>
+                <p>{t("auth.featureAiDescription")}</p>
+              </div>
+            </div>
+            <div className="auth-feature">
+              <span>03</span>
+              <div>
+                <strong>{t("auth.featureReportTitle")}</strong>
+                <p>{t("auth.featureReportDescription")}</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -71,23 +146,79 @@ function LoginPage() {
             <p>{t("auth.loginDescription")}</p>
           </div>
 
-          <div className="auth-form">
+          <form className="auth-form" onSubmit={login} noValidate>
             <label className="auth-field">
               <span>{t("auth.loginIdLabel")}</span>
-              <input type="text" placeholder={t("auth.loginIdPlaceholder")} value={loginId} onChange={(e) => setLoginId(e.target.value)} onKeyDown={handleKeyDown} disabled={loading} autoComplete="username" />
+              <input
+                className={loginIdInvalid ? "is-invalid" : ""}
+                type="text"
+                placeholder={t("auth.loginIdPlaceholder")}
+                value={loginId}
+                onChange={handleLoginIdChange}
+                disabled={loading}
+                autoComplete="username"
+                aria-invalid={loginIdInvalid}
+              />
+              {loginIdRequired && (
+                <small className="auth-field-error">
+                  {t("auth.loginIdRequired")}
+                </small>
+              )}
             </label>
+
             <label className="auth-field">
               <span>{t("auth.passwordLabel")}</span>
-              <input type="password" placeholder={t("auth.passwordPlaceholder")} value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={handleKeyDown} disabled={loading} autoComplete="current-password" />
+              <input
+                className={passwordInvalid ? "is-invalid" : ""}
+                type="password"
+                placeholder={t("auth.passwordPlaceholder")}
+                value={password}
+                onChange={handlePasswordChange}
+                onBlur={() => setPasswordTouched(true)}
+                disabled={loading}
+                autoComplete="current-password"
+                aria-invalid={passwordInvalid}
+              />
+
+              {passwordRequired ? (
+                <small className="auth-field-error">
+                  {t("auth.passwordRequired")}
+                </small>
+              ) : showPasswordFormatError ? (
+                <small className="auth-field-error">
+                  {t("auth.passwordLengthError")}
+                </small>
+              ) : (
+                <small className="auth-field-help">
+                  {t("auth.passwordLengthGuide")}
+                </small>
+              )}
             </label>
-            <button className="auth-primary-button" type="button" onClick={login} disabled={loading}>
+
+            {credentialError && (
+              <div className="auth-form-error" role="alert">
+                {credentialError}
+              </div>
+            )}
+
+            <button
+              className="auth-primary-button"
+              type="submit"
+              disabled={loading}
+            >
               {loading ? t("auth.loggingIn") : t("auth.loginButton")}
             </button>
-          </div>
+          </form>
 
           <div className="auth-switch">
             <span>{t("auth.noAccount")}</span>
-            <button type="button" onClick={() => navigate("/signup")} disabled={loading}>{t("auth.signupButton")}</button>
+            <button
+              type="button"
+              onClick={() => navigate("/signup")}
+              disabled={loading}
+            >
+              {t("auth.signupButton")}
+            </button>
           </div>
         </div>
       </section>

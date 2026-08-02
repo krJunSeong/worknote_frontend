@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Bar,
   BarChart,
@@ -13,7 +13,6 @@ import {
   YAxis,
 } from "recharts";
 import api from "../api/api";
-import LanguageSelector from "../components/LanguageSelector";
 import { useLanguage } from "../i18n/LanguageContext";
 import {
   getDifficultyClassName,
@@ -221,22 +220,6 @@ function DashboardPage() {
         </div>
 
         <div className="dashboard-header-actions">
-          <LanguageSelector />
-
-          <Link
-            to="/reports/ai"
-            className="dashboard-report-link"
-          >
-            {t("navigation.aiReport")}
-          </Link>
-
-          <Link
-            to="/work"
-            className="dashboard-work-link"
-          >
-            {t("navigation.workLog")}
-          </Link>
-
           <button
             className="dashboard-refresh-button"
             type="button"
@@ -244,7 +227,6 @@ function DashboardPage() {
           >
             {t("common.refresh")}
           </button>
-          
         </div>
       </header>
 
