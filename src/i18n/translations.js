@@ -19,6 +19,8 @@ const translations = {
       dashboard: "대시보드",
       aiReport: "AI 프로젝트 보고서",
       logout: "로그아웃",
+      user: "사용자",
+      member: "WorkNote 멤버",
     },
 
     auth: {
@@ -48,6 +50,25 @@ const translations = {
         "아이디 또는 비밀번호가 올바르지 않습니다.",
       signupError: "회원가입에 실패했습니다.",
       signupSuccess: "회원가입이 완료되었습니다.",
+
+      heroTitle: "매일의 개발 기록을, 면접에서 설명할 수 있는 성과로.",
+      heroDescription: "업무일지를 기록하면 AI가 핵심 요약, 기술 태그, 예상 면접 질문을 정리합니다.",
+      featureRecordTitle: "업무 기록 관리",
+      featureRecordDescription: "하루의 작업과 해결 과정을 구조적으로 축적합니다.",
+      featureAiTitle: "AI 분석",
+      featureAiDescription: "기록에서 핵심 성과와 기술 경험을 자동으로 추출합니다.",
+      featureReportTitle: "포트폴리오 보고서",
+      featureReportDescription: "누적 기록을 프로젝트 보고서와 PDF로 정리합니다.",
+      welcomeBack: "다시 만나서 반갑습니다",
+      createAccount: "새 계정 만들기",
+      loginDescription: "WorkNote 계정으로 계속 진행하세요.",
+      signupDescription: "기록을 시작하기 위한 기본 정보를 입력하세요.",
+      loginIdLabel: "아이디",
+      passwordLabel: "비밀번호",
+      passwordConfirmLabel: "비밀번호 확인",
+      nicknameLabel: "닉네임",
+      noAccount: "아직 계정이 없나요?",
+      hasAccount: "이미 계정이 있나요?",
     },
 
     workLog: {
@@ -103,6 +124,7 @@ const translations = {
         "업무일지가 수정되었습니다.",
       deleteSuccess:
         "업무일지가 삭제되었습니다.",
+      totalEntries: "전체 기록",
     },
 
     dashboard: {
@@ -256,6 +278,8 @@ const translations = {
       dashboard: "ダッシュボード",
       aiReport: "AIプロジェクトレポート",
       logout: "ログアウト",
+      user: "ユーザー",
+      member: "WorkNote メンバー",
     },
 
     auth: {
@@ -292,6 +316,25 @@ const translations = {
         "会員登録に失敗しました。",
       signupSuccess:
         "会員登録が完了しました。",
+
+      heroTitle: "毎日の開発記録を、面接で伝わる実績へ。",
+      heroDescription: "業務日誌を記録すると、AIが要約、技術タグ、想定面接質問を整理します。",
+      featureRecordTitle: "業務記録の管理",
+      featureRecordDescription: "日々の作業と問題解決の過程を体系的に蓄積します。",
+      featureAiTitle: "AI分析",
+      featureAiDescription: "記録から主要な成果と技術経験を自動で抽出します。",
+      featureReportTitle: "ポートフォリオレポート",
+      featureReportDescription: "蓄積した記録をプロジェクトレポートとPDFにまとめます。",
+      welcomeBack: "おかえりなさい",
+      createAccount: "アカウント作成",
+      loginDescription: "WorkNoteアカウントで続行してください。",
+      signupDescription: "記録を始めるための基本情報を入力してください。",
+      loginIdLabel: "ID",
+      passwordLabel: "パスワード",
+      passwordConfirmLabel: "パスワード確認",
+      nicknameLabel: "ニックネーム",
+      noAccount: "アカウントをお持ちでない方",
+      hasAccount: "すでにアカウントをお持ちの方",
     },
 
     workLog: {
@@ -350,6 +393,7 @@ const translations = {
         "業務日誌を修正しました。",
       deleteSuccess:
         "業務日誌を削除しました。",
+      totalEntries: "総記録数",
     },
 
     dashboard: {

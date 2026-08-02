@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../api/api";
-import LanguageSelector from "../components/LanguageSelector";
+import AppSidebar from "../components/AppSidebar";
 import { useLanguage } from "../i18n/LanguageContext";
 import {
   getDifficultyClassName,
@@ -136,6 +136,7 @@ function WorkLogPage() {
   const [formErrorMessage, setFormErrorMessage] = useState("");
 
   const userId = Number(localStorage.getItem("userId"));
+  const nickname = localStorage.getItem("nickname") || "";
 
   const isEditing = editingId !== null;
 
@@ -305,8 +306,11 @@ function WorkLogPage() {
   };
 
   return (
-    <main className="work-log-page">
-      <header className="work-log-header">
+    <div className="app-layout">
+      <AppSidebar nickname={nickname} onLogout={handleLogout} />
+
+      <main className="work-log-page">
+        <header className="work-log-header">
         <div className="work-log-heading">
           <p className="work-log-eyebrow">
             {t("workLog.eyebrow")}
@@ -319,23 +323,9 @@ function WorkLogPage() {
           </p>
         </div>
 
-        <div className="work-log-header-actions">
-          <LanguageSelector />
-
-          <Link
-            to="/dashboard"
-            className="work-log-dashboard-link"
-          >
-            {t("navigation.dashboard")}
-          </Link>
-
-          <button
-            type="button"
-            className="work-log-logout-button"
-            onClick={handleLogout}
-          >
-            {t("navigation.logout")}
-          </button>
+        <div className="work-log-header-summary">
+          <span>{t("workLog.totalEntries")}</span>
+          <strong>{sortedWorkLogs.length}</strong>
         </div>
       </header>
 
@@ -628,7 +618,8 @@ function WorkLogPage() {
           </div>
         )}
       </section>
-    </main>
+      </main>
+    </div>
   );
 }
 
