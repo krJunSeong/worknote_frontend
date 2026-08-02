@@ -1,0 +1,513 @@
+.work-editor-page {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  color: #172033;
+}
+
+.work-editor-hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(26px, 3vw, 42px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  border-radius: 28px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 84% 20%, rgba(96, 165, 250, 0.36), transparent 18rem),
+    linear-gradient(135deg, #0f172a 0%, #172554 60%, #1e3a8a 100%);
+  box-shadow: 0 24px 54px rgba(15, 23, 42, 0.18);
+}
+
+.work-editor-hero::after {
+  content: "";
+  position: absolute;
+  right: -70px;
+  bottom: -110px;
+  width: 320px;
+  height: 320px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+}
+
+.work-editor-hero-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+}
+
+.work-editor-hero .page-eyebrow {
+  color: #93c5fd;
+}
+
+.work-editor-hero h1 {
+  margin: 0;
+  font-size: clamp(34px, 3.7vw, 52px);
+  letter-spacing: -0.05em;
+}
+
+.work-editor-hero-copy > p:last-child {
+  max-width: 680px;
+  margin: 12px 0 0;
+  color: #cbd5e1;
+  line-height: 1.7;
+}
+
+.work-editor-progress-card {
+  position: relative;
+  z-index: 1;
+  width: min(300px, 100%);
+  flex: 0 0 300px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+}
+
+.work-editor-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.work-editor-progress-head span {
+  color: #cbd5e1;
+  font-size: 12px;
+}
+
+.work-editor-progress-head strong {
+  font-size: 24px;
+}
+
+.work-editor-progress-track {
+  height: 8px;
+  margin-top: 15px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.work-editor-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #60a5fa, #a5b4fc);
+  transition: width 220ms ease;
+}
+
+.work-editor-progress-card p {
+  margin: 11px 0 0;
+  color: #cbd5e1;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.work-editor-layout {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.65fr);
+  align-items: start;
+  gap: 22px;
+}
+
+.work-editor-card,
+.work-editor-flow-card,
+.work-editor-tip-card,
+.work-editor-preview-card {
+  border: 1px solid #e1e8f0;
+  background: #ffffff;
+  box-shadow: 0 16px 44px rgba(15, 23, 42, 0.055);
+}
+
+.work-editor-card {
+  min-width: 0;
+  padding: clamp(24px, 2.5vw, 36px);
+  border-radius: 24px;
+}
+
+.work-editor-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.work-editor-card-head > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.work-editor-step {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  color: #1d4ed8;
+  background: #dbeafe;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.work-editor-card-head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.work-editor-ai-badge {
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #6d28d9;
+  background: #ede9fe;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+}
+
+.work-editor-form {
+  margin-top: 28px;
+  display: grid;
+  gap: 20px;
+}
+
+.work-editor-field {
+  display: grid;
+  gap: 9px;
+}
+
+.work-editor-field > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.work-editor-field > span small {
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.work-editor-field input,
+.work-editor-field textarea {
+  width: 100%;
+  padding: 15px 16px;
+  border: 1px solid #d9e2ec;
+  border-radius: 15px;
+  outline: none;
+  color: #172033;
+  background: #f8fafc;
+  resize: vertical;
+  transition: border-color 160ms ease, background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.work-editor-field input {
+  min-height: 54px;
+}
+
+.work-editor-field textarea {
+  min-height: 360px;
+  line-height: 1.75;
+}
+
+.work-editor-field input:focus,
+.work-editor-field textarea:focus {
+  border-color: #60a5fa;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.11);
+}
+
+.work-editor-prompt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.work-editor-prompt-chips span {
+  padding: 8px 11px;
+  border: 1px solid #dbeafe;
+  border-radius: 999px;
+  color: #1e40af;
+  background: #eff6ff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.work-editor-error {
+  padding: 13px 15px;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  color: #b42318;
+  background: #fff1f0;
+  font-size: 13px;
+}
+
+.work-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.work-editor-actions button {
+  min-height: 50px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 13px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.work-editor-actions button:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.work-editor-cancel {
+  color: #475569;
+  background: #eef2f7;
+}
+
+.work-editor-submit {
+  min-width: 190px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+}
+
+.work-editor-aside {
+  display: grid;
+  gap: 16px;
+}
+
+.work-editor-flow-card,
+.work-editor-tip-card,
+.work-editor-preview-card {
+  padding: 22px;
+  border-radius: 20px;
+}
+
+.work-editor-flow-card h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.work-editor-flow-card ol {
+  margin: 22px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+  list-style: none;
+}
+
+.work-editor-flow-card li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.work-editor-flow-card li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 34px;
+  left: 16px;
+  width: 1px;
+  height: calc(100% + 10px);
+  background: #dbe3ee;
+}
+
+.work-editor-flow-card li > span {
+  position: relative;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: #64748b;
+  background: #eef2f7;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.work-editor-flow-card li.is-complete > span {
+  color: #ffffff;
+  background: #2563eb;
+}
+
+.work-editor-flow-card strong {
+  display: block;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.work-editor-flow-card p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.work-editor-tip-card {
+  display: flex;
+  gap: 13px;
+  border-color: #fde68a;
+  background: linear-gradient(145deg, #fffbeb, #fff7ed);
+}
+
+.work-editor-tip-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: #b45309;
+  background: #fef3c7;
+}
+
+.work-editor-tip-card h2 {
+  margin: 1px 0 6px;
+  color: #92400e;
+  font-size: 15px;
+}
+
+.work-editor-tip-card p {
+  margin: 0;
+  color: #a16207;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.work-editor-preview-card {
+  overflow: hidden;
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+}
+
+.work-editor-preview-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.work-editor-preview-head > span {
+  padding: 5px 7px;
+  border-radius: 7px;
+  color: #ffffff;
+  background: #7c3aed;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.work-editor-preview-head strong {
+  font-size: 13px;
+}
+
+.work-editor-preview-line {
+  width: 68%;
+  height: 8px;
+  margin-top: 14px;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+.work-editor-preview-line.is-long {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.work-editor-preview-tags {
+  margin-top: 18px;
+  display: flex;
+  gap: 7px;
+}
+
+.work-editor-preview-tags span {
+  width: 56px;
+  height: 22px;
+  border-radius: 999px;
+  background: #dbeafe;
+}
+
+.work-editor-loading {
+  min-height: 560px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  color: #64748b;
+}
+
+.work-editor-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid #dbeafe;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: work-editor-spin 0.8s linear infinite;
+}
+
+@keyframes work-editor-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1180px) {
+  .work-editor-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .work-editor-aside {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 840px) {
+  .work-editor-hero {
+    display: grid;
+  }
+
+  .work-editor-progress-card {
+    width: 100%;
+    max-width: 430px;
+    flex-basis: auto;
+  }
+
+  .work-editor-aside {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .work-editor-hero,
+  .work-editor-card {
+    padding: 22px 18px;
+    border-radius: 21px;
+  }
+
+  .work-editor-card-head {
+    align-items: flex-start;
+  }
+
+  .work-editor-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .work-editor-submit {
+    min-width: 0;
+  }
+}
