@@ -12,31 +12,49 @@ button,a{font:inherit}
   font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR","Noto Sans JP",sans-serif
 }
 .landing-header,.hero,.why,.section,.cta,.landing footer{
-  width:min(1180px,calc(100% - 40px));margin:0 auto
+  width:min(1180px,calc(100% - 40px));
+  margin:0 auto;
 }
+
 .landing-header{
-  position:sticky;top:0;z-index:20;height:74px;display:grid;grid-template-columns:1fr auto 1fr;
-  align-items:center;border-bottom:1px solid rgba(229,231,235,.8);
-  background:rgba(247,248,251,.88);backdrop-filter:blur(14px)
+  position:sticky;
+  top:0;
+  z-index:50;
+  width:100%;
+  height:64px;
+  margin:0;
+  padding:0;
+  background:#ffffff;
+  border-bottom:1px solid #e5e7eb;
 }
+
+.landing-header-inner{
+  width:min(1180px,calc(100% - 40px));
+  height:100%;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+}
+
 .brand{display:flex;align-items:center;gap:10px;width:max-content;color:var(--text);text-decoration:none;font-weight:800}
 .brand b,.mock aside b{
   display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--primary);color:#fff
 }
-.landing-header nav{display:flex;gap:28px}
+.landing-header nav{display:flex;align-items:center;gap:24px;height:100%}
 .landing-header nav button,.language button{
   padding:0;border:0;background:none;color:var(--muted);cursor:pointer;font-weight:700
 }
 .landing-header nav button{font-size:14px}
-.header-actions{display:flex;align-items:center;justify-content:flex-end;gap:18px}
+.header-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px;height:100%}
 .language{display:flex;gap:5px;color:#b0b7c3;font-size:12px}
 .language .on{color:var(--primary)}
 .login-btn,.secondary{
   border:1px solid var(--line);background:#fff;color:var(--text);border-radius:10px;cursor:pointer
 }
-.login-btn{min-height:38px;padding:0 16px;font-size:13px;font-weight:750}
+.login-btn{height:36px;padding:0 14px;font-size:13px;font-weight:750}
 .hero{
-  min-height:690px;padding:82px 0 92px;display:grid;grid-template-columns:.92fr 1.08fr;align-items:center;gap:70px
+  min-height:650px;padding:58px 0 82px;display:grid;grid-template-columns:.92fr 1.08fr;align-items:center;gap:70px
 }
 .eyebrow,.cta>div>p{margin:0 0 16px;color:var(--primary);font-size:12px;font-weight:850;letter-spacing:.14em}
 .hero h1,.section h2,.why h2,.cta h2{letter-spacing:-.045em}
@@ -123,13 +141,15 @@ button,a{font:inherit}
 }
 .landing footer p{margin:0;text-align:center}.landing footer>span{text-align:right}.landing footer>b{color:var(--text)}
 @media(max-width:980px){
-  .landing-header{grid-template-columns:1fr auto}.landing-header nav{display:none}
+  .landing-header-inner{grid-template-columns:1fr auto}.landing-header nav{display:none}
   .hero{grid-template-columns:1fr;gap:50px}.feature-grid{grid-template-columns:repeat(2,1fr)}
   .flow{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:680px){
-  .landing-header,.hero,.why,.section,.cta,.landing footer{width:min(100% - 28px,1180px)}
-  .landing-header{height:66px}.header-actions{gap:10px}.login-btn{padding:0 12px}
+  .hero,.why,.section,.cta,.landing footer{width:min(100% - 28px,1180px)}
+  .landing-header{height:60px}
+  .landing-header-inner{width:calc(100% - 28px)}
+  .header-actions{gap:10px}.login-btn{height:34px;padding:0 12px}
   .hero{min-height:auto;padding:62px 0 74px}.hero h1{font-size:42px}.intro{font-size:15px}
   .hero-actions{align-items:stretch}.primary,.secondary{width:100%;justify-content:center}
   .mock-body{min-height:330px}.mock aside{width:48px}.mock-main{padding:18px}.stats{gap:6px}.stats article{padding:10px}
