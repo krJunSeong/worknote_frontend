@@ -97,21 +97,23 @@ function LandingPage() {
   return (
     <div className="landing">
       <header className="landing-header">
-        <a href="/" className="brand"><b>W</b>WorkNote</a>
+        <div className="landing-header-inner">
+          <a href="/" className="brand"><b>W</b>WorkNote</a>
 
-        <nav>
-          <button onClick={() => scroll("features")}>{c.menu[0]}</button>
-          <button onClick={() => scroll("architecture")}>{c.menu[1]}</button>
-          <button onClick={() => scroll("stack")}>{c.menu[2]}</button>
-        </nav>
+          <nav>
+            <button onClick={() => scroll("features")}>{c.menu[0]}</button>
+            <button onClick={() => scroll("architecture")}>{c.menu[1]}</button>
+            <button onClick={() => scroll("stack")}>{c.menu[2]}</button>
+          </nav>
 
-        <div className="header-actions">
-          <div className="language">
-            <button className={language === "ko" ? "on" : ""} onClick={() => changeLanguage("ko")}>KO</button>
-            <span>/</span>
-            <button className={language === "ja" ? "on" : ""} onClick={() => changeLanguage("ja")}>JA</button>
+          <div className="header-actions">
+            <div className="language">
+              <button className={language === "ko" ? "on" : ""} onClick={() => changeLanguage("ko")}>KO</button>
+              <span>/</span>
+              <button className={language === "ja" ? "on" : ""} onClick={() => changeLanguage("ja")}>JA</button>
+            </div>
+            <button className="login-btn" onClick={() => navigate("/login")}>{c.login}</button>
           </div>
-          <button className="login-btn" onClick={() => navigate("/login")}>{c.login}</button>
         </div>
       </header>
 
