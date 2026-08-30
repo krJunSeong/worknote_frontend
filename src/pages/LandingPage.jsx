@@ -98,7 +98,7 @@ function LandingPage() {
     <div className="landing">
       <header className="landing-header">
         <div className="landing-header-inner">
-          <a href="/" className="brand"><b>W</b>WorkNote</a>
+          <a href="/" className="brand"><b>W</b><span>WorkNote</span></a>
 
           <nav>
             <button onClick={() => scroll("features")}>{c.menu[0]}</button>
