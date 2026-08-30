@@ -12,6 +12,7 @@ import DashboardPage from "./pages/DashboardPage";
 import WorkLogListPage from "./pages/WorkLogListPage";
 import WorkLogEditorPage from "./pages/WorkLogEditorPage";
 import ReportPage from "./pages/ReportPage";
+import LandingPage from "./pages/LandingPage";
 import { useLanguage } from "./i18n/LanguageContext";
 
 function getInitialRoute() {
@@ -33,10 +34,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
+        <Route path="/" element={<LandingPage />} />
+
+        {/* <Route
           path="/"
           element={<Navigate to={getInitialRoute()} replace />}
-        />
+        /> */}
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
