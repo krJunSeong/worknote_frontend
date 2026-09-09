@@ -26,12 +26,24 @@ function AppLayout() {
   }, [collapsed]);
 
   const pageTitle = useMemo(() => {
+    if (location.pathname.startsWith("/calendar")) {
+      return t("navigation.calendar");
+    }
+
+    if (location.pathname.startsWith("/goals")) {
+      return t("navigation.goals");
+    }
+
     if (location.pathname.startsWith("/report")) {
       return t("navigation.aiReport");
     }
 
     if (location.pathname.startsWith("/work/create")) {
       return t("navigation.workLogCreate");
+    }
+
+    if (location.pathname.startsWith("/work/view")) {
+      return t("workLog.detailTitle");
     }
 
     if (location.pathname.startsWith("/work/edit")) {

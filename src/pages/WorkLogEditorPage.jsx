@@ -5,8 +5,11 @@ import {
   useParams,
 } from "react-router-dom";
 import api from "../api/api";
+import MemoImageImporter from "../components/MemoImageImporter";
 import { useLanguage } from "../i18n/LanguageContext";
 import "./WorkLogEditorPage.css";
+
+const CONTENT_MAX_LENGTH = 20000;
 
 const EMPTY_FORM = {
   title: "",
@@ -84,6 +87,37 @@ function WorkLogEditorPage() {
       ...previous,
       [name]: value,
     }));
+
+    if (formErrorMessage) {
+      setFormErrorMessage("");
+    }
+  };
+
+  const handleMemoDraftApply = (draft, mode) => {
+    if (!draft) return;
+
+    setForm((previous) => {
+      if (mode === "append") {
+        const nextContent = [
+          previous.content.trim(),
+          draft.content?.trim(),
+        ]
+          .filter(Boolean)
+          .join("\n\n");
+
+        return {
+          title: previous.title.trim()
+            ? previous.title
+            : draft.title || "",
+          content: nextContent,
+        };
+      }
+
+      return {
+        title: draft.title || previous.title,
+        content: draft.content || previous.content,
+      };
+    });
 
     if (formErrorMessage) {
       setFormErrorMessage("");
@@ -185,6 +219,16 @@ function WorkLogEditorPage() {
           </div>
 
           <form className="work-editor-form" onSubmit={handleSubmit}>
+            {!isEditing && (
+              <MemoImageImporter
+                disabled={submitting}
+                hasExistingContent={Boolean(
+                  form.title.trim() || form.content.trim()
+                )}
+                onApply={handleMemoDraftApply}
+              />
+            )}
+
             <label className="work-editor-field">
               <span>
                 {t("workLog.titleLabel")}
@@ -204,7 +248,7 @@ function WorkLogEditorPage() {
             <label className="work-editor-field">
               <span>
                 {t("workLog.contentLabel")}
-                <small>{contentLength}</small>
+                <small>{contentLength}/{CONTENT_MAX_LENGTH}</small>
               </span>
               <textarea
                 name="content"
@@ -212,6 +256,7 @@ function WorkLogEditorPage() {
                 onChange={handleInputChange}
                 placeholder={t("workLog.editorContentPlaceholder")}
                 rows={17}
+                maxLength={CONTENT_MAX_LENGTH}
                 disabled={submitting}
               />
             </label>

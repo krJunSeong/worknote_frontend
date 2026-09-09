@@ -12,6 +12,9 @@ import DashboardPage from "./pages/DashboardPage";
 import WorkLogListPage from "./pages/WorkLogListPage";
 import WorkLogEditorPage from "./pages/WorkLogEditorPage";
 import ReportPage from "./pages/ReportPage";
+import CalendarPage from "./pages/CalendarPage";
+import GoalPage from "./pages/GoalPage";
+import WorkLogDetailPage from "./pages/WorkLogDetailPage";
 import LandingPage from "./pages/LandingPage";
 import { useLanguage } from "./i18n/LanguageContext";
 
@@ -56,6 +59,12 @@ function App() {
             path="/work/edit/:workLogId"
             element={<WorkLogEditorPage />}
           />
+          <Route
+            path="/work/view/:workLogId"
+            element={<WorkLogDetailPage />}
+          />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/goals" element={<GoalPage />} />
           <Route path="/report" element={<ReportPage />} />
         </Route>
 
