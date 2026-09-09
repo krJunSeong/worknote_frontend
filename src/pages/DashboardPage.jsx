@@ -66,25 +66,23 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const userId = Number(localStorage.getItem("userId"));
+  const accessToken = localStorage.getItem("accessToken");
 
   useEffect(() => {
-    if (!userId) {
+    if (!accessToken) {
       navigate("/login", { replace: true });
       return;
     }
 
     fetchDashboard();
-  }, [userId, navigate]);
+  }, [accessToken, navigate]);
 
   const fetchDashboard = async () => {
     try {
       setLoading(true);
       setErrorMessage("");
 
-      const response = await api.get(
-        `/api/dashboard/${userId}`
-      );
+      const response = await api.get("/api/dashboard");
 
       setDashboard(response.data);
     } catch (error) {

@@ -5,34 +5,76 @@ import LanguageSelector from "../components/LanguageSelector";
 import { useLanguage } from "../i18n/LanguageContext";
 import "./AuthPage.css";
 
+const LOGIN_ID_MIN_LENGTH = 4;
+const LOGIN_ID_MAX_LENGTH = 20;
 const PASSWORD_MIN_LENGTH = 5;
 const PASSWORD_MAX_LENGTH = 12;
+const NICKNAME_MIN_LENGTH = 2;
+const NICKNAME_MAX_LENGTH = 12;
 
 function SignupPage() {
   const navigate = useNavigate();
   const { t } = useLanguage();
 
   const [loginId, setLoginId] = useState("");
+  const [loginIdTouched, setLoginIdTouched] = useState(false);
   const [password, setPassword] = useState("");
+  const [passwordTouched, setPasswordTouched] = useState(false);
   const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false);
   const [nickname, setNickname] = useState("");
+  const [nicknameTouched, setNicknameTouched] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
 
-  const passwordInvalid = useMemo(() => {
-    if (!password) {
-      return false;
-    }
+  const loginIdInvalid = useMemo(() => {
+    if (!loginId.trim()) return false;
+    const length = loginId.trim().length;
+    return length < LOGIN_ID_MIN_LENGTH || length > LOGIN_ID_MAX_LENGTH;
+  }, [loginId]);
 
+  const passwordInvalid = useMemo(() => {
+    if (!password) return false;
     return (
       password.length < PASSWORD_MIN_LENGTH ||
       password.length > PASSWORD_MAX_LENGTH
     );
   }, [password]);
 
+  const passwordConfirmLengthInvalid = useMemo(() => {
+    if (!passwordConfirm) return false;
+    return (
+      passwordConfirm.length < PASSWORD_MIN_LENGTH ||
+      passwordConfirm.length > PASSWORD_MAX_LENGTH
+    );
+  }, [passwordConfirm]);
+
   const passwordNotMatch =
     Boolean(passwordConfirm) && password !== passwordConfirm;
+
+  const nicknameInvalid = useMemo(() => {
+    if (!nickname.trim()) return false;
+    const length = nickname.trim().length;
+    return length < NICKNAME_MIN_LENGTH || length > NICKNAME_MAX_LENGTH;
+  }, [nickname]);
+
+  const showLoginIdLengthError =
+    loginId.trim().length > LOGIN_ID_MAX_LENGTH ||
+    ((loginIdTouched || submitted) && loginIdInvalid);
+  const showPasswordLengthError =
+    password.length > PASSWORD_MAX_LENGTH ||
+    ((passwordTouched || submitted) && passwordInvalid);
+  const showPasswordConfirmLengthError =
+    passwordConfirm.length > PASSWORD_MAX_LENGTH ||
+    ((passwordConfirmTouched || submitted) && passwordConfirmLengthInvalid);
+  const showPasswordMismatchError =
+    (passwordConfirmTouched || submitted) &&
+    !passwordConfirmLengthInvalid &&
+    passwordNotMatch;
+  const showNicknameLengthError =
+    nickname.trim().length > NICKNAME_MAX_LENGTH ||
+    ((nicknameTouched || submitted) && nicknameInvalid);
 
   const handleSignup = async (event) => {
     event.preventDefault();
@@ -41,11 +83,14 @@ function SignupPage() {
 
     if (
       !loginId.trim() ||
+      loginIdInvalid ||
       !password ||
       passwordInvalid ||
       !passwordConfirm ||
+      passwordConfirmLengthInvalid ||
       passwordNotMatch ||
-      !nickname.trim()
+      !nickname.trim() ||
+      nicknameInvalid
     ) {
       return;
     }
@@ -125,7 +170,11 @@ function SignupPage() {
             <label className="auth-field">
               <span>{t("auth.loginIdLabel")}</span>
               <input
-                className={submitted && !loginId.trim() ? "is-invalid" : ""}
+                className={
+                  (submitted && !loginId.trim()) || showLoginIdLengthError
+                    ? "is-invalid"
+                    : ""
+                }
                 type="text"
                 placeholder={t("auth.loginIdPlaceholder")}
                 value={loginId}
@@ -133,12 +182,24 @@ function SignupPage() {
                   setLoginId(event.target.value);
                   setServerError("");
                 }}
+                onBlur={() => setLoginIdTouched(true)}
                 disabled={loading}
                 autoComplete="username"
+                aria-invalid={
+                  (submitted && !loginId.trim()) || showLoginIdLengthError
+                }
               />
-              {submitted && !loginId.trim() && (
+              {submitted && !loginId.trim() ? (
                 <small className="auth-field-error">
                   {t("auth.loginIdRequired")}
+                </small>
+              ) : showLoginIdLengthError ? (
+                <small className="auth-field-error">
+                  {t("auth.loginIdLengthError")}
+                </small>
+              ) : (
+                <small className="auth-field-help">
+                  {t("auth.loginIdLengthGuide")}
                 </small>
               )}
             </label>
@@ -147,7 +208,7 @@ function SignupPage() {
               <span>{t("auth.passwordLabel")}</span>
               <input
                 className={
-                  submitted && (!password || passwordInvalid)
+                  (submitted && !password) || showPasswordLengthError
                     ? "is-invalid"
                     : ""
                 }
@@ -158,6 +219,7 @@ function SignupPage() {
                   setPassword(event.target.value);
                   setServerError("");
                 }}
+                onBlur={() => setPasswordTouched(true)}
                 disabled={loading}
                 autoComplete="new-password"
               />
@@ -165,7 +227,7 @@ function SignupPage() {
                 <small className="auth-field-error">
                   {t("auth.passwordRequired")}
                 </small>
-              ) : submitted && passwordInvalid ? (
+              ) : showPasswordLengthError ? (
                 <small className="auth-field-error">
                   {t("auth.passwordLengthError")}
                 </small>
@@ -180,7 +242,9 @@ function SignupPage() {
               <span>{t("auth.passwordConfirmLabel")}</span>
               <input
                 className={
-                  submitted && (!passwordConfirm || passwordNotMatch)
+                  (submitted && !passwordConfirm) ||
+                  showPasswordConfirmLengthError ||
+                  showPasswordMismatchError
                     ? "is-invalid"
                     : ""
                 }
@@ -191,24 +255,42 @@ function SignupPage() {
                   setPasswordConfirm(event.target.value);
                   setServerError("");
                 }}
+                onBlur={() => setPasswordConfirmTouched(true)}
                 disabled={loading}
                 autoComplete="new-password"
+                aria-invalid={
+                  (submitted && !passwordConfirm) ||
+                  showPasswordConfirmLengthError ||
+                  showPasswordMismatchError
+                }
               />
               {submitted && !passwordConfirm ? (
                 <small className="auth-field-error">
                   {t("auth.passwordConfirmRequired")}
                 </small>
-              ) : submitted && passwordNotMatch ? (
+              ) : showPasswordConfirmLengthError ? (
+                <small className="auth-field-error">
+                  {t("auth.passwordLengthError")}
+                </small>
+              ) : showPasswordMismatchError ? (
                 <small className="auth-field-error">
                   {t("auth.passwordNotMatch")}
                 </small>
-              ) : null}
+              ) : (
+                <small className="auth-field-help">
+                  {t("auth.passwordLengthGuide")}
+                </small>
+              )}
             </label>
 
             <label className="auth-field">
               <span>{t("auth.nicknameLabel")}</span>
               <input
-                className={submitted && !nickname.trim() ? "is-invalid" : ""}
+                className={
+                  (submitted && !nickname.trim()) || showNicknameLengthError
+                    ? "is-invalid"
+                    : ""
+                }
                 type="text"
                 placeholder={t("auth.nicknamePlaceholder")}
                 value={nickname}
@@ -216,12 +298,24 @@ function SignupPage() {
                   setNickname(event.target.value);
                   setServerError("");
                 }}
+                onBlur={() => setNicknameTouched(true)}
                 disabled={loading}
                 autoComplete="nickname"
+                aria-invalid={
+                  (submitted && !nickname.trim()) || showNicknameLengthError
+                }
               />
-              {submitted && !nickname.trim() && (
+              {submitted && !nickname.trim() ? (
                 <small className="auth-field-error">
                   {t("auth.nicknameRequired")}
+                </small>
+              ) : showNicknameLengthError ? (
+                <small className="auth-field-error">
+                  {t("auth.nicknameLengthError")}
+                </small>
+              ) : (
+                <small className="auth-field-help">
+                  {t("auth.nicknameLengthGuide")}
                 </small>
               )}
             </label>

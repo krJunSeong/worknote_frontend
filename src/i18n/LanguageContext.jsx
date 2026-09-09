@@ -24,6 +24,31 @@ function getNestedTranslation(object, path) {
   }, object);
 }
 
+function detectBrowserLanguage() {
+  if (typeof navigator === "undefined") {
+    return "ko";
+  }
+
+  const candidates =
+    Array.isArray(navigator.languages) && navigator.languages.length > 0
+      ? navigator.languages
+      : [navigator.language];
+
+  for (const candidate of candidates) {
+    const normalized = String(candidate || "").toLowerCase();
+
+    if (normalized.startsWith("ja")) {
+      return "ja";
+    }
+
+    if (normalized.startsWith("ko")) {
+      return "ko";
+    }
+  }
+
+  return "ko";
+}
+
 export function LanguageProvider({ children }) {
   const [language, setLanguage] = useState(() => {
     const savedLanguage = localStorage.getItem("language");
@@ -32,13 +57,7 @@ export function LanguageProvider({ children }) {
       return savedLanguage;
     }
 
-    const browserLanguage = navigator.language.toLowerCase();
-
-    if (browserLanguage.startsWith("ja")) {
-        return "ja";
-    }
-
-    return "ko";
+    return detectBrowserLanguage();
   });
 
   useEffect(() => {

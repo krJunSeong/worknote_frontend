@@ -45,6 +45,27 @@ function SidebarIcon({ name }) {
     );
   }
 
+  if (name === "calendar") {
+    return (
+      <svg {...commonProps}>
+        <rect x="3" y="5" width="18" height="16" rx="2" />
+        <path d="M16 3v4M8 3v4M3 10h18" />
+        <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
+      </svg>
+    );
+  }
+
+  if (name === "goal") {
+    return (
+      <svg {...commonProps}>
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="5" />
+        <circle cx="12" cy="12" r="1" />
+        <path d="M15.5 8.5 20 4" />
+      </svg>
+    );
+  }
+
   if (name === "report") {
     return (
       <svg {...commonProps}>
@@ -147,6 +168,36 @@ function AppSidebar({ collapsed, nickname, onLogout, onToggle }) {
             </span>
             <span className="app-nav-label">
               {t("navigation.workLogCreate")}
+            </span>
+          </NavLink>
+
+          <div className="app-nav-group-label">
+            {t("navigation.planningGroup")}
+          </div>
+
+          <NavLink
+            to="/calendar"
+            title={collapsed ? t("navigation.calendar") : undefined}
+            className={linkClassName}
+          >
+            <span className="app-nav-icon">
+              <SidebarIcon name="calendar" />
+            </span>
+            <span className="app-nav-label">
+              {t("navigation.calendar")}
+            </span>
+          </NavLink>
+
+          <NavLink
+            to="/goals"
+            title={collapsed ? t("navigation.goals") : undefined}
+            className={linkClassName}
+          >
+            <span className="app-nav-icon">
+              <SidebarIcon name="goal" />
+            </span>
+            <span className="app-nav-label">
+              {t("navigation.goals")}
             </span>
           </NavLink>
 
