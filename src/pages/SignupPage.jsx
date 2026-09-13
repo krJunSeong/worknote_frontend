@@ -3,14 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { signup } from "../api/authApi";
 import LanguageSelector from "../components/LanguageSelector";
 import { useLanguage } from "../i18n/LanguageContext";
+import {
+  LOGIN_ID_MAX_LENGTH,
+  NICKNAME_MAX_LENGTH,
+  PASSWORD_MAX_LENGTH,
+  isLoginIdCharacterValid,
+  isLoginIdLengthValid,
+  isNicknameCharacterValid,
+  isNicknameLengthValid,
+  isSignupPasswordLengthValid,
+} from "../utils/authValidation";
 import "./AuthPage.css";
-
-const LOGIN_ID_MIN_LENGTH = 4;
-const LOGIN_ID_MAX_LENGTH = 20;
-const PASSWORD_MIN_LENGTH = 5;
-const PASSWORD_MAX_LENGTH = 12;
-const NICKNAME_MIN_LENGTH = 2;
-const NICKNAME_MAX_LENGTH = 12;
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -28,40 +31,44 @@ function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
 
-  const loginIdInvalid = useMemo(() => {
+  const loginIdLengthInvalid = useMemo(() => {
     if (!loginId.trim()) return false;
-    const length = loginId.trim().length;
-    return length < LOGIN_ID_MIN_LENGTH || length > LOGIN_ID_MAX_LENGTH;
+    return !isLoginIdLengthValid(loginId);
+  }, [loginId]);
+
+  const loginIdCharacterInvalid = useMemo(() => {
+    if (!loginId.trim()) return false;
+    return !isLoginIdCharacterValid(loginId);
   }, [loginId]);
 
   const passwordInvalid = useMemo(() => {
     if (!password) return false;
-    return (
-      password.length < PASSWORD_MIN_LENGTH ||
-      password.length > PASSWORD_MAX_LENGTH
-    );
+    return !isSignupPasswordLengthValid(password);
   }, [password]);
 
   const passwordConfirmLengthInvalid = useMemo(() => {
     if (!passwordConfirm) return false;
-    return (
-      passwordConfirm.length < PASSWORD_MIN_LENGTH ||
-      passwordConfirm.length > PASSWORD_MAX_LENGTH
-    );
+    return !isSignupPasswordLengthValid(passwordConfirm);
   }, [passwordConfirm]);
 
   const passwordNotMatch =
     Boolean(passwordConfirm) && password !== passwordConfirm;
 
-  const nicknameInvalid = useMemo(() => {
+  const nicknameLengthInvalid = useMemo(() => {
     if (!nickname.trim()) return false;
-    const length = nickname.trim().length;
-    return length < NICKNAME_MIN_LENGTH || length > NICKNAME_MAX_LENGTH;
+    return !isNicknameLengthValid(nickname);
+  }, [nickname]);
+
+  const nicknameCharacterInvalid = useMemo(() => {
+    if (!nickname.trim()) return false;
+    return !isNicknameCharacterValid(nickname);
   }, [nickname]);
 
   const showLoginIdLengthError =
     loginId.trim().length > LOGIN_ID_MAX_LENGTH ||
-    ((loginIdTouched || submitted) && loginIdInvalid);
+    ((loginIdTouched || submitted) && loginIdLengthInvalid);
+  const showLoginIdCharacterError =
+    (loginIdTouched || submitted) && !showLoginIdLengthError && loginIdCharacterInvalid;
   const showPasswordLengthError =
     password.length > PASSWORD_MAX_LENGTH ||
     ((passwordTouched || submitted) && passwordInvalid);
@@ -74,7 +81,9 @@ function SignupPage() {
     passwordNotMatch;
   const showNicknameLengthError =
     nickname.trim().length > NICKNAME_MAX_LENGTH ||
-    ((nicknameTouched || submitted) && nicknameInvalid);
+    ((nicknameTouched || submitted) && nicknameLengthInvalid);
+  const showNicknameCharacterError =
+    (nicknameTouched || submitted) && !showNicknameLengthError && nicknameCharacterInvalid;
 
   const handleSignup = async (event) => {
     event.preventDefault();
@@ -83,14 +92,16 @@ function SignupPage() {
 
     if (
       !loginId.trim() ||
-      loginIdInvalid ||
+      loginIdLengthInvalid ||
+      loginIdCharacterInvalid ||
       !password ||
       passwordInvalid ||
       !passwordConfirm ||
       passwordConfirmLengthInvalid ||
       passwordNotMatch ||
       !nickname.trim() ||
-      nicknameInvalid
+      nicknameLengthInvalid ||
+      nicknameCharacterInvalid
     ) {
       return;
     }
@@ -171,7 +182,7 @@ function SignupPage() {
               <span>{t("auth.loginIdLabel")}</span>
               <input
                 className={
-                  (submitted && !loginId.trim()) || showLoginIdLengthError
+                  (submitted && !loginId.trim()) || showLoginIdLengthError || showLoginIdCharacterError
                     ? "is-invalid"
                     : ""
                 }
@@ -186,7 +197,7 @@ function SignupPage() {
                 disabled={loading}
                 autoComplete="username"
                 aria-invalid={
-                  (submitted && !loginId.trim()) || showLoginIdLengthError
+                  (submitted && !loginId.trim()) || showLoginIdLengthError || showLoginIdCharacterError
                 }
               />
               {submitted && !loginId.trim() ? (
@@ -197,9 +208,13 @@ function SignupPage() {
                 <small className="auth-field-error">
                   {t("auth.loginIdLengthError")}
                 </small>
+              ) : showLoginIdCharacterError ? (
+                <small className="auth-field-error">
+                  {t("auth.loginIdCharacterError")}
+                </small>
               ) : (
                 <small className="auth-field-help">
-                  {t("auth.loginIdLengthGuide")}
+                  {t("auth.loginIdRuleGuide")}
                 </small>
               )}
             </label>
@@ -287,7 +302,7 @@ function SignupPage() {
               <span>{t("auth.nicknameLabel")}</span>
               <input
                 className={
-                  (submitted && !nickname.trim()) || showNicknameLengthError
+                  (submitted && !nickname.trim()) || showNicknameLengthError || showNicknameCharacterError
                     ? "is-invalid"
                     : ""
                 }
@@ -302,7 +317,7 @@ function SignupPage() {
                 disabled={loading}
                 autoComplete="nickname"
                 aria-invalid={
-                  (submitted && !nickname.trim()) || showNicknameLengthError
+                  (submitted && !nickname.trim()) || showNicknameLengthError || showNicknameCharacterError
                 }
               />
               {submitted && !nickname.trim() ? (
@@ -313,9 +328,13 @@ function SignupPage() {
                 <small className="auth-field-error">
                   {t("auth.nicknameLengthError")}
                 </small>
+              ) : showNicknameCharacterError ? (
+                <small className="auth-field-error">
+                  {t("auth.nicknameCharacterError")}
+                </small>
               ) : (
                 <small className="auth-field-help">
-                  {t("auth.nicknameLengthGuide")}
+                  {t("auth.nicknameRuleGuide")}
                 </small>
               )}
             </label>

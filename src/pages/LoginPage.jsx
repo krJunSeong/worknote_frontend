@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import LanguageSelector from "../components/LanguageSelector";
 import { useLanguage } from "../i18n/LanguageContext";
+import {
+  LOGIN_ID_MAX_LENGTH,
+  PASSWORD_MAX_LENGTH,
+  isLoginIdCharacterValid,
+  isLoginIdLengthValid,
+  isLoginPasswordLengthValid,
+} from "../utils/authValidation";
 import "./AuthPage.css";
-
-const LOGIN_ID_MIN_LENGTH = 4;
-const LOGIN_ID_MAX_LENGTH = 20;
-const PASSWORD_MIN_LENGTH = 5;
-const PASSWORD_MAX_LENGTH = 12;
 const LOADING_OVERLAY_DELAY_MS = 250;
 const LOADING_OVERLAY_MIN_VISIBLE_MS = 400;
 const LOADING_SUCCESS_VISIBLE_MS = 500;
@@ -112,33 +114,31 @@ function LoginPage() {
     password: false,
   });
 
-  const loginIdFormatInvalid = useMemo(() => {
-    if (!loginId.trim()) {
-      return false;
-    }
+  const loginIdLengthInvalid = useMemo(() => {
+    if (!loginId.trim()) return false;
+    return !isLoginIdLengthValid(loginId);
+  }, [loginId]);
 
-    const length = loginId.trim().length;
-    return length < LOGIN_ID_MIN_LENGTH || length > LOGIN_ID_MAX_LENGTH;
+  const loginIdCharacterInvalid = useMemo(() => {
+    if (!loginId.trim()) return false;
+    return !isLoginIdCharacterValid(loginId);
   }, [loginId]);
 
   const passwordFormatInvalid = useMemo(() => {
-    if (!password) {
-      return false;
-    }
-
-    return (
-      password.length < PASSWORD_MIN_LENGTH ||
-      password.length > PASSWORD_MAX_LENGTH
-    );
+    if (!password) return false;
+    return !isLoginPasswordLengthValid(password);
   }, [password]);
 
   const loginIdRequired = submitted && !loginId.trim();
   const passwordRequired = submitted && !password;
-  const showLoginIdFormatError =
+  const showLoginIdLengthError =
     loginId.trim().length > LOGIN_ID_MAX_LENGTH ||
-    ((loginIdTouched || submitted) && loginIdFormatInvalid);
+    ((loginIdTouched || submitted) && loginIdLengthInvalid);
+  const showLoginIdCharacterError =
+    (loginIdTouched || submitted) && !showLoginIdLengthError && loginIdCharacterInvalid;
   const showPasswordFormatError =
-    (passwordTouched || submitted) && passwordFormatInvalid;
+    password.length > PASSWORD_MAX_LENGTH ||
+    ((passwordTouched || submitted) && passwordFormatInvalid);
 
   useEffect(() => {
     return () => {
@@ -265,7 +265,8 @@ function LoginPage() {
     if (
       loginRequestInFlightRef.current ||
       !loginId.trim() ||
-      loginIdFormatInvalid ||
+      loginIdLengthInvalid ||
+      loginIdCharacterInvalid ||
       !password ||
       passwordFormatInvalid
     ) {
@@ -325,7 +326,7 @@ function LoginPage() {
   };
 
   const loginIdInvalid =
-    loginIdRequired || showLoginIdFormatError || failedFields.loginId;
+    loginIdRequired || showLoginIdLengthError || showLoginIdCharacterError || failedFields.loginId;
   const passwordInvalid =
     passwordRequired || showPasswordFormatError || failedFields.password;
 
@@ -408,13 +409,17 @@ function LoginPage() {
                 <small className="auth-field-error">
                   {t("auth.loginIdRequired")}
                 </small>
-              ) : showLoginIdFormatError ? (
+              ) : showLoginIdLengthError ? (
                 <small className="auth-field-error">
                   {t("auth.loginIdLengthError")}
                 </small>
+              ) : showLoginIdCharacterError ? (
+                <small className="auth-field-error">
+                  {t("auth.loginIdCharacterError")}
+                </small>
               ) : (
                 <small className="auth-field-help">
-                  {t("auth.loginIdLengthGuide")}
+                  {t("auth.loginIdRuleGuide")}
                 </small>
               )}
             </label>
@@ -439,11 +444,11 @@ function LoginPage() {
                 </small>
               ) : showPasswordFormatError ? (
                 <small className="auth-field-error">
-                  {t("auth.passwordLengthError")}
+                  {t("auth.loginPasswordError")}
                 </small>
               ) : (
                 <small className="auth-field-help">
-                  {t("auth.passwordLengthGuide")}
+                  {t("auth.loginPasswordGuide")}
                 </small>
               )}
             </label>

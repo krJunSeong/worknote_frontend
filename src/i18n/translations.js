@@ -12,6 +12,7 @@ const translations = {
       retry: "다시 시도",
       loading: "불러오는 중입니다.",
       noData: "데이터가 없습니다.",
+      view: "상세보기",
       language: "언어 선택",
     },
 
@@ -83,6 +84,8 @@ const translations = {
       loginIdRequired: "아이디를 입력해 주세요.",
       loginIdLengthGuide: "아이디는 4자 이상 20자 이하로 입력해 주세요.",
       loginIdLengthError: "아이디는 4~20자로 입력해 주세요.",
+      loginIdRuleGuide: "4~20자 · 영문, 숫자, 밑줄(_)만 사용할 수 있습니다.",
+      loginIdCharacterError: "아이디에는 영문, 숫자, 밑줄(_)만 사용할 수 있습니다.",
       passwordRequired: "비밀번호를 입력해 주세요.",
       passwordConfirmRequired:
         "비밀번호 확인을 입력해 주세요.",
@@ -90,6 +93,8 @@ const translations = {
       nicknameRequired: "닉네임을 입력해 주세요.",
       nicknameLengthGuide: "닉네임은 2자 이상 12자 이하로 입력해 주세요.",
       nicknameLengthError: "닉네임은 2~12자로 입력해 주세요.",
+      nicknameRuleGuide: "2~12자 · 한글/일본어/영문, 숫자, 공백, 밑줄(_)을 사용할 수 있습니다.",
+      nicknameCharacterError: "닉네임에는 문자, 숫자, 공백, 밑줄(_)만 사용할 수 있습니다.",
 
       loginError:
         "아이디 또는 비밀번호가 올바르지 않습니다.",
@@ -116,8 +121,10 @@ const translations = {
       hasAccount: "이미 계정이 있나요?",
       signupHeroDescription:
         "하루의 업무를 꾸준히 기록하고 AI 분석으로 기술 경험과 성과를 체계화하세요.",
-      passwordLengthGuide: "비밀번호는 5자 이상 12자 이하로 입력해 주세요.",
-      passwordLengthError: "비밀번호 양식이 맞지 않습니다. 5~12자로 입력해 주세요.",
+      passwordLengthGuide: "비밀번호는 8~64자로 입력해 주세요. 특수문자와 공백도 사용할 수 있습니다.",
+      passwordLengthError: "비밀번호는 8~64자로 입력해 주세요.",
+      loginPasswordGuide: "가입할 때 사용한 비밀번호를 입력해 주세요. 최대 64자까지 확인합니다.",
+      loginPasswordError: "비밀번호는 64자를 초과할 수 없습니다.",
     },
 
     workLog: {
@@ -276,6 +283,16 @@ const translations = {
       selectedEmpty: "이 날짜에는 등록된 업무나 목표가 없습니다.",
       noRecords: "이번 달에 등록된 업무 기록이 없습니다.",
       loadError: "캘린더 정보를 불러오지 못했습니다.",
+      dragHint: "업무 기록과 목표를 드래그해 날짜를 옮길 수 있습니다. 목표 양 끝의 핸들을 드래그하면 기간을 조정할 수 있습니다.",
+      moveError: "일정을 변경하지 못했습니다.",
+      invalidGoalRange: "목표 시작일은 마감일보다 늦을 수 없습니다.",
+      quickEntryTitle: "빠른 업무일지 작성",
+      quickEntryDescription: "선택한 날짜로 업무일지를 작성합니다. 저장 시 AI 분석 사용량 1회를 사용합니다.",
+      quickEntryDate: "업무 날짜",
+      quickEntrySave: "작성 및 AI 분석",
+      quickEntrySaving: "저장 중...",
+      quickEntryCancel: "취소",
+      doubleClickHint: "날짜 칸을 더블클릭하면 바로 업무일지를 작성할 수 있습니다.",
       weekdays: ["일", "월", "화", "수", "목", "금", "토"],
     },
 
@@ -289,6 +306,7 @@ const translations = {
       titlePlaceholder: "예: 9월까지 Spring Security 복습 완료",
       descriptionLabel: "계획 내용",
       descriptionPlaceholder: "어떤 방식으로 진행할지 간단히 적어 주세요.",
+      startDateLabel: "시작일",
       targetDateLabel: "마감일",
       statusLabel: "상태",
       progressLabel: "진행률",
@@ -301,19 +319,25 @@ const translations = {
       cancelEdit: "수정 취소",
       delete: "삭제",
       edit: "수정",
+      inlineEditTitle: "제목 바로 수정",
+      inlineEditDescription: "내용 바로 수정",
+      inlineEditSaveError: "목표 내용을 수정하지 못했습니다.",
       deleteConfirm: "이 목표를 삭제하시겠습니까?",
       loadError: "목표를 불러오지 못했습니다.",
       saveError: "목표를 저장하지 못했습니다.",
       deleteError: "목표를 삭제하지 못했습니다.",
       titleRequired: "목표 제목을 입력해 주세요.",
       targetDateRequired: "마감일을 선택해 주세요.",
+      dateRangeError: "시작일은 마감일보다 늦을 수 없습니다.",
+      progressSaveError: "진행률을 저장하지 못했습니다.",
+      progressDragHint: "게이지를 드래그해 진행률을 바로 변경할 수 있습니다.",
       empty: "등록된 목표가 없습니다. 첫 목표를 만들어 보세요.",
       total: "전체 목표",
       active: "진행 중",
       completedCount: "완료",
       overdueCount: "기한 초과",
       all: "전체",
-      calendarHint: "목표의 마감일은 캘린더에도 함께 표시됩니다.",
+      calendarHint: "목표 기간은 캘린더에 연속 일정으로 표시되며 드래그로 이동·확장할 수 있습니다.",
     },
 
     dashboard: {
@@ -460,6 +484,7 @@ const translations = {
       retry: "再試行",
       loading: "読み込み中です。",
       noData: "データがありません。",
+      view: "詳細を見る",
       language: "言語選択",
     },
 
@@ -535,6 +560,10 @@ const translations = {
         "IDは4文字以上20文字以下で入力してください。",
       loginIdLengthError:
         "IDは4〜20文字で入力してください。",
+      loginIdRuleGuide:
+        "4〜20文字・英字、数字、アンダースコア（_）のみ使用できます。",
+      loginIdCharacterError:
+        "IDには英字、数字、アンダースコア（_）のみ使用できます。",
       passwordRequired:
         "パスワードを入力してください。",
       passwordConfirmRequired:
@@ -547,6 +576,10 @@ const translations = {
         "ニックネームは2文字以上12文字以下で入力してください。",
       nicknameLengthError:
         "ニックネームは2〜12文字で入力してください。",
+      nicknameRuleGuide:
+        "2〜12文字・文字、数字、空白、アンダースコア（_）を使用できます。",
+      nicknameCharacterError:
+        "ニックネームには文字、数字、空白、アンダースコア（_）のみ使用できます。",
 
       loginError:
         "IDまたはパスワードが正しくありません。",
@@ -575,9 +608,11 @@ const translations = {
       hasAccount: "すでにアカウントをお持ちの方",
       signupHeroDescription:
         "日々の業務を記録し、AI分析で技術経験と成果を体系的に整理しましょう。",
-      passwordLengthGuide: "パスワードは5文字以上12文字以下で入力してください。",
+      passwordLengthGuide: "パスワードは8〜64文字で入力してください。記号や空白も使用できます。",
       passwordLengthError:
-        "パスワード形式が正しくありません。5〜12文字で入力してください。",
+        "パスワードは8〜64文字で入力してください。",
+      loginPasswordGuide: "登録時に設定したパスワードを入力してください。最大64文字まで確認します。",
+      loginPasswordError: "パスワードは64文字を超えることができません。",
     },
 
     workLog: {
@@ -637,7 +672,7 @@ const translations = {
       deleteSuccess:
         "業務日誌を削除しました。",
       totalEntries: "全記録",
-      recordsSectionTitle: "すべての業務記録",
+      recordsSectionTitle: "業務記録",
       recordsSectionDescription:
         "蓄積した業務日誌とAI分析結果を検索し、難易度別に確認できます。",
       searchPlaceholder: "タイトル、業務内容、技術タグを検索",
@@ -739,6 +774,16 @@ const translations = {
       selectedEmpty: "この日には業務記録や目標がありません。",
       noRecords: "今月の業務記録はありません。",
       loadError: "カレンダー情報を読み込めませんでした。",
+      dragHint: "業務記録と目標はドラッグして日付を移動できます。目標の両端のハンドルをドラッグすると期間を調整できます。",
+      moveError: "スケジュールを変更できませんでした。",
+      invalidGoalRange: "目標の開始日は期限より後に設定できません。",
+      quickEntryTitle: "業務日誌をすぐに作成",
+      quickEntryDescription: "選択した日付で業務日誌を作成します。保存時にAI利用回数を1回使用します。",
+      quickEntryDate: "業務日",
+      quickEntrySave: "作成してAI分析",
+      quickEntrySaving: "保存中...",
+      quickEntryCancel: "キャンセル",
+      doubleClickHint: "日付セルをダブルクリックすると、その日付ですぐに業務日誌を作成できます。",
       weekdays: ["日", "月", "火", "水", "木", "金", "土"],
     },
 
@@ -752,6 +797,7 @@ const translations = {
       titlePlaceholder: "例：9月までにSpring Securityの復習を完了",
       descriptionLabel: "計画内容",
       descriptionPlaceholder: "どのように進めるか簡単に記入してください。",
+      startDateLabel: "開始日",
       targetDateLabel: "期限",
       statusLabel: "状態",
       progressLabel: "進捗率",
@@ -764,19 +810,25 @@ const translations = {
       cancelEdit: "編集をキャンセル",
       delete: "削除",
       edit: "編集",
+      inlineEditTitle: "タイトルを直接編集",
+      inlineEditDescription: "内容を直接編集",
+      inlineEditSaveError: "目標内容を更新できませんでした。",
       deleteConfirm: "この目標を削除しますか？",
       loadError: "目標を読み込めませんでした。",
       saveError: "目標を保存できませんでした。",
       deleteError: "目標を削除できませんでした。",
       titleRequired: "目標タイトルを入力してください。",
       targetDateRequired: "期限を選択してください。",
+      dateRangeError: "開始日は期限より後に設定できません。",
+      progressSaveError: "進捗率を保存できませんでした。",
+      progressDragHint: "ゲージをドラッグすると進捗率を直接変更できます。",
       empty: "登録された目標はありません。最初の目標を作成してみましょう。",
       total: "目標合計",
       active: "進行中",
       completedCount: "完了",
       overdueCount: "期限超過",
       all: "すべて",
-      calendarHint: "目標の期限はカレンダーにも表示されます。",
+      calendarHint: "目標期間はカレンダーに連続表示され、ドラッグで移動・延長できます。",
     },
 
     dashboard: {

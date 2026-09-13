@@ -95,6 +95,19 @@ const formatDateTime = (dateTime, language) => {
   ).format(date);
 };
 
+
+const formatWorkDate = (workLog, language) => {
+  if (workLog?.workDate) {
+    const [year, month, day] = workLog.workDate.split("-").map(Number);
+    return new Intl.DateTimeFormat(language === "ja" ? "ja-JP" : "ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date(year, month - 1, day));
+  }
+  return formatDateTime(workLog?.createdAt, language);
+};
+
 const SearchIcon = () => (
   <svg
     width="18"
@@ -382,7 +395,7 @@ function WorkLogListPage() {
                     <div className="work-record-title-area">
                       <div className="work-record-meta">
                         <time>
-                          {formatDateTime(workLog.createdAt, language)}
+                          {formatWorkDate(workLog, language)}
                         </time>
                         <span
                           className={`work-record-difficulty difficulty-${difficultyClass}`}
@@ -390,10 +403,24 @@ function WorkLogListPage() {
                           {translateDifficulty(workLog.difficulty, t)}
                         </span>
                       </div>
-                      <h2>{workLog.title}</h2>
+                      <button
+                        type="button"
+                        className="work-record-title-link"
+                        onClick={() => navigate(`/work/view/${workLog.id}`)}
+                      >
+                        {workLog.title}
+                      </button>
                     </div>
 
                     <div className="work-record-actions">
+                      <button
+                        type="button"
+                        className="work-record-view"
+                        onClick={() => navigate(`/work/view/${workLog.id}`)}
+                        disabled={deletingId === workLog.id}
+                      >
+                        {t("common.view")}
+                      </button>
                       <button
                         type="button"
                         className="work-record-edit"

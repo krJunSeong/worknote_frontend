@@ -4,13 +4,22 @@ import api from "../api/api";
 import { useLanguage } from "../i18n/LanguageContext";
 import "./GoalPage.css";
 
-const EMPTY_FORM = {
+const todayKey = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const createEmptyForm = () => ({
   title: "",
   description: "",
+  startDate: todayKey(),
   targetDate: "",
   status: "PLANNED",
   progress: 0,
-};
+});
 
 const statusKey = (status) => {
   if (status === "COMPLETED") return "completed";
@@ -29,16 +38,25 @@ const formatDate = (dateString, language) => {
   }).format(new Date(year, month - 1, day));
 };
 
+const getOptimisticStatus = (progress) => {
+  if (progress >= 100) return "COMPLETED";
+  if (progress <= 0) return "PLANNED";
+  return "IN_PROGRESS";
+};
+
 function GoalPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { language, t } = useLanguage();
   const [goals, setGoals] = useState([]);
-  const [form, setForm] = useState(EMPTY_FORM);
+  const [form, setForm] = useState(createEmptyForm);
   const [editingId, setEditingId] = useState(null);
   const [filter, setFilter] = useState("ALL");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [savingProgressId, setSavingProgressId] = useState(null);
+  const [inlineEdit, setInlineEdit] = useState(null);
+  const [inlineSavingId, setInlineSavingId] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
   const fetchGoals = async () => {
@@ -68,6 +86,7 @@ function GoalPage() {
       setForm({
         title: target.title || "",
         description: target.description || "",
+        startDate: target.startDate || target.targetDate || todayKey(),
         targetDate: target.targetDate || "",
         status: target.status || "PLANNED",
         progress: Number(target.progress || 0),
@@ -75,17 +94,23 @@ function GoalPage() {
       setEditingId(target.id);
       navigate("/goals", { replace: true });
       window.requestAnimationFrame(() => {
-        document.querySelector(".goal-form-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document.querySelector(".goal-form-card")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       });
     }
   }, [goals, location.search, navigate]);
 
-  const stats = useMemo(() => ({
-    total: goals.length,
-    active: goals.filter((goal) => goal.status === "IN_PROGRESS").length,
-    completed: goals.filter((goal) => goal.status === "COMPLETED").length,
-    overdue: goals.filter((goal) => goal.overdue).length,
-  }), [goals]);
+  const stats = useMemo(
+    () => ({
+      total: goals.length,
+      active: goals.filter((goal) => goal.status === "IN_PROGRESS").length,
+      completed: goals.filter((goal) => goal.status === "COMPLETED").length,
+      overdue: goals.filter((goal) => goal.overdue).length,
+    }),
+    [goals]
+  );
 
   const visibleGoals = useMemo(() => {
     if (filter === "ALL") return goals;
@@ -104,14 +129,7 @@ function GoalPage() {
     setForm((previous) => ({
       ...previous,
       progress,
-      status:
-        progress >= 100
-          ? "COMPLETED"
-          : progress > 0 && previous.status === "PLANNED"
-            ? "IN_PROGRESS"
-            : previous.status === "COMPLETED"
-              ? "IN_PROGRESS"
-              : previous.status,
+      status: getOptimisticStatus(progress),
     }));
   };
 
@@ -120,12 +138,17 @@ function GoalPage() {
     setForm((previous) => ({
       ...previous,
       status,
-      progress: status === "COMPLETED" ? 100 : previous.progress === 100 ? 90 : previous.progress,
+      progress:
+        status === "COMPLETED"
+          ? 100
+          : previous.progress === 100
+            ? 90
+            : previous.progress,
     }));
   };
 
   const resetForm = () => {
-    setForm(EMPTY_FORM);
+    setForm(createEmptyForm());
     setEditingId(null);
     setErrorMessage("");
   };
@@ -135,11 +158,15 @@ function GoalPage() {
     setForm({
       title: goal.title || "",
       description: goal.description || "",
+      startDate: goal.startDate || goal.targetDate || todayKey(),
       targetDate: goal.targetDate || "",
       status: goal.status || "PLANNED",
       progress: Number(goal.progress || 0),
     });
-    document.querySelector(".goal-form-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.querySelector(".goal-form-card")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   };
 
   const handleSubmit = async (event) => {
@@ -153,9 +180,16 @@ function GoalPage() {
       return;
     }
 
+    const effectiveStartDate = form.startDate || form.targetDate;
+    if (effectiveStartDate > form.targetDate) {
+      setErrorMessage(t("goal.dateRangeError"));
+      return;
+    }
+
     const body = {
       title: form.title.trim(),
       description: form.description.trim(),
+      startDate: effectiveStartDate,
       targetDate: form.targetDate,
       status: form.status,
       progress: Number(form.progress),
@@ -166,10 +200,16 @@ function GoalPage() {
       setErrorMessage("");
       if (editingId) {
         const response = await api.put(`/api/goals/${editingId}`, body);
-        setGoals((previous) => previous.map((goal) => goal.id === editingId ? response.data : goal));
+        setGoals((previous) =>
+          previous.map((goal) => (goal.id === editingId ? response.data : goal))
+        );
       } else {
         const response = await api.post("/api/goals", body);
-        setGoals((previous) => [...previous, response.data].sort((a, b) => String(a.targetDate).localeCompare(String(b.targetDate))));
+        setGoals((previous) =>
+          [...previous, response.data].sort((a, b) =>
+            String(a.targetDate).localeCompare(String(b.targetDate))
+          )
+        );
       }
       resetForm();
     } catch (error) {
@@ -189,6 +229,98 @@ function GoalPage() {
     } catch (error) {
       console.error("목표 삭제 실패:", error);
       setErrorMessage(t("goal.deleteError"));
+    }
+  };
+
+  const changeListProgress = (goalId, progress) => {
+    setGoals((previous) =>
+      previous.map((goal) =>
+        goal.id === goalId
+          ? {
+              ...goal,
+              progress,
+              status: getOptimisticStatus(progress),
+              overdue:
+                progress < 100 &&
+                Boolean(goal.targetDate) &&
+                goal.targetDate < todayKey(),
+            }
+          : goal
+      )
+    );
+  };
+
+  const saveListProgress = async (goalId, progress) => {
+    try {
+      setSavingProgressId(goalId);
+      const response = await api.patch(`/api/goals/${goalId}/progress`, {
+        progress,
+      });
+      setGoals((previous) =>
+        previous.map((goal) => (goal.id === goalId ? response.data : goal))
+      );
+    } catch (error) {
+      console.error("진행률 저장 실패:", error);
+      setErrorMessage(error.response?.data?.message || t("goal.progressSaveError"));
+      await fetchGoals();
+    } finally {
+      setSavingProgressId(null);
+    }
+  };
+
+  const startInlineEdit = (goal, field) => {
+    setInlineEdit({
+      goalId: goal.id,
+      field,
+      value: field === "title" ? goal.title || "" : goal.description || "",
+    });
+    setErrorMessage("");
+  };
+
+  const saveInlineEdit = async (goal) => {
+    if (!inlineEdit || inlineEdit.goalId !== goal.id || inlineSavingId === goal.id) return;
+
+    const editingField = inlineEdit.field;
+    const nextValue = inlineEdit.value.trim();
+    if (editingField === "title" && !nextValue) {
+      setErrorMessage(t("goal.titleRequired"));
+      return;
+    }
+
+    const currentValue = editingField === "title"
+      ? String(goal.title || "").trim()
+      : String(goal.description || "").trim();
+    if (nextValue === currentValue) {
+      setInlineEdit((current) =>
+        current?.goalId === goal.id && current.field === editingField ? null : current
+      );
+      return;
+    }
+
+    const body = {
+      title: editingField === "title" ? nextValue : goal.title,
+      description: editingField === "description" ? nextValue : goal.description || "",
+      startDate: goal.startDate || goal.targetDate,
+      targetDate: goal.targetDate,
+      status: goal.status,
+      progress: Number(goal.progress || 0),
+    };
+
+    try {
+      setInlineSavingId(goal.id);
+      setErrorMessage("");
+      const response = await api.put(`/api/goals/${goal.id}`, body);
+      setGoals((previous) =>
+        previous.map((item) => (item.id === goal.id ? response.data : item))
+      );
+      setInlineEdit((current) =>
+        current?.goalId === goal.id && current.field === editingField ? null : current
+      );
+    } catch (error) {
+      console.error("목표 인라인 수정 실패:", error);
+      setErrorMessage(error.response?.data?.message || t("goal.inlineEditSaveError"));
+    } finally {
+      setInlineSavingId(null);
     }
   };
 
@@ -233,7 +365,10 @@ function GoalPage() {
                 </button>
               ))}
             </div>
+            <p className="goal-progress-hint">{t("goal.progressDragHint")}</p>
           </div>
+
+          {errorMessage && <div className="goal-form-error goal-list-error">{errorMessage}</div>}
 
           {loading ? (
             <div className="goal-state"><div className="goal-spinner" /><span>{t("common.loading")}</span></div>
@@ -241,31 +376,97 @@ function GoalPage() {
             <div className="goal-state"><p>{t("goal.empty")}</p></div>
           ) : (
             <div className="goal-list">
-              {visibleGoals.map((goal) => (
-                <article key={goal.id} className={`goal-card ${goal.overdue ? "is-overdue" : ""}`}>
-                  <div className="goal-card-head">
-                    <div>
-                      <span className={`goal-status is-${statusKey(goal.status)} ${goal.overdue ? "is-overdue" : ""}`}>
-                        {goal.overdue ? t("goal.overdue") : t(`goal.${statusKey(goal.status)}`)}
-                      </span>
-                      <h3>{goal.title}</h3>
+              {visibleGoals.map((goal) => {
+                const startDate = goal.startDate || goal.targetDate;
+                return (
+                  <article key={goal.id} className={`goal-card ${goal.overdue ? "is-overdue" : ""}`}>
+                    <div className="goal-card-head">
+                      <div className="goal-card-main">
+                        <span className={`goal-status is-${statusKey(goal.status)} ${goal.overdue ? "is-overdue" : ""}`}>
+                          {goal.overdue ? t("goal.overdue") : t(`goal.${statusKey(goal.status)}`)}
+                        </span>
+                        {inlineEdit?.goalId === goal.id && inlineEdit.field === "title" ? (
+                          <input
+                            className="goal-inline-text-input is-title"
+                            autoFocus
+                            maxLength={120}
+                            value={inlineEdit.value}
+                            disabled={inlineSavingId === goal.id}
+                            onChange={(event) => setInlineEdit((previous) => ({ ...previous, value: event.target.value }))}
+                            onBlur={() => saveInlineEdit(goal)}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") {
+                                event.preventDefault();
+                                event.currentTarget.blur();
+                              } else if (event.key === "Escape") {
+                                setInlineEdit(null);
+                              }
+                            }}
+                          />
+                        ) : (
+                          <div className="goal-inline-display is-title">
+                            <h3 className={goal.status === "COMPLETED" ? "is-completed" : ""}>{goal.title}</h3>
+                            <button type="button" className="goal-inline-pencil" aria-label={t("goal.inlineEditTitle")} title={t("goal.inlineEditTitle")} onClick={() => startInlineEdit(goal, "title")}>✎</button>
+                          </div>
+                        )}
+                      </div>
+                      <time>
+                        {startDate === goal.targetDate
+                          ? formatDate(goal.targetDate, language)
+                          : `${formatDate(startDate, language)} → ${formatDate(goal.targetDate, language)}`}
+                      </time>
                     </div>
-                    <time>{formatDate(goal.targetDate, language)}</time>
-                  </div>
 
-                  {goal.description && <p className="goal-card-description">{goal.description}</p>}
+                    {inlineEdit?.goalId === goal.id && inlineEdit.field === "description" ? (
+                      <textarea
+                        className="goal-inline-text-input is-description"
+                        autoFocus
+                        maxLength={3000}
+                        rows={3}
+                        value={inlineEdit.value}
+                        disabled={inlineSavingId === goal.id}
+                        onChange={(event) => setInlineEdit((previous) => ({ ...previous, value: event.target.value }))}
+                        onBlur={() => saveInlineEdit(goal)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" && !event.shiftKey) {
+                            event.preventDefault();
+                            event.currentTarget.blur();
+                          } else if (event.key === "Escape") {
+                            setInlineEdit(null);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="goal-inline-display is-description">
+                        <p className={`goal-card-description ${goal.status === "COMPLETED" ? "is-completed" : ""}`}>{goal.description || t("goal.descriptionPlaceholder")}</p>
+                        <button type="button" className="goal-inline-pencil" aria-label={t("goal.inlineEditDescription")} title={t("goal.inlineEditDescription")} onClick={() => startInlineEdit(goal, "description")}>✎</button>
+                      </div>
+                    )}
 
-                  <div className="goal-progress-row">
-                    <div className="goal-progress-track"><span style={{ width: `${goal.progress}%` }} /></div>
-                    <strong>{goal.progress}%</strong>
-                  </div>
+                    <div className="goal-progress-row is-editable">
+                      <input
+                        className="goal-inline-progress"
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="5"
+                        value={Number(goal.progress || 0)}
+                        aria-label={`${goal.title} ${t("goal.progressLabel")}`}
+                        disabled={savingProgressId === goal.id}
+                        onChange={(event) => changeListProgress(goal.id, Number(event.target.value))}
+                        onPointerUp={(event) => saveListProgress(goal.id, Number(event.currentTarget.value))}
+                        onKeyUp={(event) => saveListProgress(goal.id, Number(event.currentTarget.value))}
+                      />
+                      <strong>{goal.progress}%</strong>
+                    </div>
 
-                  <div className="goal-card-actions">
-                    <button type="button" onClick={() => startEdit(goal)}>{t("goal.edit")}</button>
-                    <button type="button" className="is-danger" onClick={() => handleDelete(goal.id)}>{t("goal.delete")}</button>
-                  </div>
-                </article>
-              ))}
+                    <div className="goal-card-actions">
+                      <button type="button" onClick={() => startEdit(goal)}>{t("goal.edit")}</button>
+                      <button type="button" className="is-danger" onClick={() => handleDelete(goal.id)}>{t("goal.delete")}</button>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           )}
         </section>
@@ -289,25 +490,28 @@ function GoalPage() {
 
             <div className="goal-form-row">
               <label>
-                <span>{t("goal.targetDateLabel")}</span>
-                <input type="date" name="targetDate" value={form.targetDate} onChange={handleChange} disabled={submitting} />
+                <span>{t("goal.startDateLabel")}</span>
+                <input type="date" name="startDate" value={form.startDate} onChange={handleChange} disabled={submitting} />
               </label>
               <label>
-                <span>{t("goal.statusLabel")}</span>
-                <select name="status" value={form.status} onChange={handleStatusChange} disabled={submitting}>
-                  <option value="PLANNED">{t("goal.planned")}</option>
-                  <option value="IN_PROGRESS">{t("goal.inProgress")}</option>
-                  <option value="COMPLETED">{t("goal.completed")}</option>
-                </select>
+                <span>{t("goal.targetDateLabel")}</span>
+                <input type="date" name="targetDate" value={form.targetDate} min={form.startDate || undefined} onChange={handleChange} disabled={submitting} />
               </label>
             </div>
+
+            <label>
+              <span>{t("goal.statusLabel")}</span>
+              <select name="status" value={form.status} onChange={handleStatusChange} disabled={submitting}>
+                <option value="PLANNED">{t("goal.planned")}</option>
+                <option value="IN_PROGRESS">{t("goal.inProgress")}</option>
+                <option value="COMPLETED">{t("goal.completed")}</option>
+              </select>
+            </label>
 
             <label className="goal-progress-field">
               <span>{t("goal.progressLabel")} <strong>{form.progress}%</strong></span>
               <input type="range" min="0" max="100" step="5" value={form.progress} onChange={handleProgressChange} disabled={submitting} />
             </label>
-
-            {errorMessage && <div className="goal-form-error">{errorMessage}</div>}
 
             <div className="goal-form-actions">
               {editingId && <button type="button" onClick={resetForm} disabled={submitting}>{t("goal.cancelEdit")}</button>}

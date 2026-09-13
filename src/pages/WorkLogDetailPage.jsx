@@ -40,6 +40,20 @@ const formatDateTime = (value, language) => {
   }).format(date);
 };
 
+
+const formatWorkDate = (workDate, createdAt, language) => {
+  if (workDate) {
+    const [year, month, day] = workDate.split("-").map(Number);
+    return new Intl.DateTimeFormat(language === "ja" ? "ja-JP" : "ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      weekday: "short",
+    }).format(new Date(year, month - 1, day));
+  }
+  return formatDateTime(createdAt, language);
+};
+
 function WorkLogDetailPage() {
   const navigate = useNavigate();
   const { workLogId } = useParams();
@@ -53,14 +67,8 @@ function WorkLogDetailPage() {
       try {
         setLoading(true);
         setErrorMessage("");
-        const userId = Number(localStorage.getItem("userId"));
-        const response = await api.get(`/api/work/${userId}`);
-        const list = Array.isArray(response.data) ? response.data : [];
-        const entry = list.find((item) => String(item.id) === String(workLogId));
-        if (!entry) {
-          throw new Error(t("workLog.loadError"));
-        }
-        setWorkLog(entry);
+        const response = await api.get(`/api/work/detail/${workLogId}`);
+        setWorkLog(response.data);
       } catch (error) {
         console.error("업무일지 상세 조회 실패:", error);
         setErrorMessage(error.response?.data?.message || t("workLog.loadError"));
@@ -116,7 +124,7 @@ function WorkLogDetailPage() {
             </span>
             <h2>{workLog.title}</h2>
           </div>
-          <time>{formatDateTime(workLog.createdAt, language)}</time>
+          <time>{formatWorkDate(workLog.workDate, workLog.createdAt, language)}</time>
         </div>
 
         <div className="work-detail-content">

@@ -55,11 +55,8 @@ function WorkLogEditorPage() {
     const fetchEditingEntry = async () => {
       try {
         setLoadingEntry(true);
-        const response = await api.get(`/api/work/${userId}`);
-        const list = Array.isArray(response.data) ? response.data : [];
-        const entry = list.find(
-          (workLog) => String(workLog.id) === String(workLogId)
-        );
+        const response = await api.get(`/api/work/detail/${workLogId}`);
+        const entry = response.data;
 
         if (!entry) {
           setFormErrorMessage(t("workLog.entryNotFound"));

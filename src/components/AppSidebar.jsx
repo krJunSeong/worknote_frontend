@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useLanguage } from "../i18n/LanguageContext";
 
 function SidebarIcon({ name }) {
@@ -109,10 +109,15 @@ function AppSidebar({ collapsed, nickname, onLogout, onToggle }) {
     <aside className="app-sidebar">
       <div className="app-sidebar-top">
         <div className="app-sidebar-brand-row">
-          <div className="app-sidebar-brand">
+          <Link
+            to="/dashboard"
+            className="app-sidebar-brand"
+            title={collapsed ? "WorkNote" : undefined}
+            aria-label="WorkNote dashboard"
+          >
             <span className="app-sidebar-logo">W</span>
             <strong className="app-sidebar-brand-name">WorkNote</strong>
-          </div>
+          </Link>
 
           <button
             type="button"

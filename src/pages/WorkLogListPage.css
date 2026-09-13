@@ -450,6 +450,35 @@
   letter-spacing: -0.025em;
 }
 
+.work-record-title-link {
+  display: block;
+  max-width: 100%;
+  margin: 10px 0 0;
+  padding: 0;
+  border: 0;
+  overflow-wrap: anywhere;
+  color: #0f172a;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  cursor: pointer;
+}
+
+.work-record-title-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.work-record-title-link:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 .work-record-actions {
   display: flex;
   gap: 7px;
@@ -468,6 +497,11 @@
 .work-record-actions button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+.work-record-view {
+  color: #047857;
+  background: #ecfdf5;
 }
 
 .work-record-edit {

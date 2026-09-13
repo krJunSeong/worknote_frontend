@@ -398,3 +398,263 @@
     grid-template-columns: 1fr;
   }
 }
+
+.calendar-help-lines {
+  display: grid;
+  gap: 3px;
+  margin-top: 10px;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.calendar-board-card.is-updating {
+  cursor: progress;
+}
+
+.calendar-cell:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: -2px;
+}
+
+.calendar-cell.is-drag-over {
+  box-shadow: inset 0 0 0 3px #60a5fa;
+  background: #eff6ff;
+}
+
+.calendar-item-chip {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.calendar-item-chip.is-draggable {
+  cursor: grab;
+}
+
+.calendar-item-chip.is-draggable:active {
+  cursor: grabbing;
+}
+
+.calendar-chip-title {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendar-drag-grip {
+  flex: 0 0 auto;
+  opacity: .55;
+  font-size: 9px;
+  letter-spacing: -2px;
+}
+
+/* Goal range segments visually connect across adjacent date cells. */
+.calendar-item-chip.is-goal.is-range-start:not(.is-range-single) {
+  margin-right: -9px;
+  padding-right: 12px;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+
+.calendar-item-chip.is-goal.is-range-middle {
+  margin-right: -9px;
+  margin-left: -9px;
+  padding-right: 12px;
+  padding-left: 12px;
+  border-radius: 2px;
+}
+
+.calendar-item-chip.is-goal.is-range-end {
+  margin-left: -9px;
+  padding-left: 12px;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+
+.calendar-resize-handle {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 7px;
+  border-radius: 4px;
+  background: currentColor;
+  opacity: .22;
+  cursor: ew-resize;
+}
+
+.calendar-resize-handle:hover {
+  opacity: .5;
+}
+
+.calendar-resize-handle.is-start {
+  left: 2px;
+}
+
+.calendar-resize-handle.is-end {
+  right: 2px;
+}
+
+.calendar-quick-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, .42);
+  backdrop-filter: blur(3px);
+}
+
+.calendar-quick-modal {
+  width: min(560px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 22px;
+  border: 1px solid #dbe3ec;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, .25);
+}
+
+.calendar-quick-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.calendar-quick-modal-head span {
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.calendar-quick-modal-head h2 {
+  margin: 4px 0 0;
+  color: #0f172a;
+  font-size: 22px;
+}
+
+.calendar-quick-modal-head > button {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 10px;
+  color: #64748b;
+  background: #f1f5f9;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.calendar-quick-description {
+  margin: 10px 0 18px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.calendar-quick-modal form {
+  display: grid;
+  gap: 14px;
+}
+
+.calendar-quick-modal label {
+  display: grid;
+  gap: 7px;
+}
+
+.calendar-quick-modal label > span {
+  color: #334155;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.calendar-quick-modal input,
+.calendar-quick-modal textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 11px;
+  border: 1px solid #dbe3ec;
+  border-radius: 10px;
+  outline: 0;
+  color: #0f172a;
+  background: #fff;
+  font: inherit;
+}
+
+.calendar-quick-modal input:focus,
+.calendar-quick-modal textarea:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, .13);
+}
+
+.calendar-quick-modal input[readonly] {
+  color: #64748b;
+  background: #f8fafc;
+}
+
+.calendar-quick-error {
+  padding: 10px 11px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #b42318;
+  background: #fff1f0;
+  font-size: 12px;
+}
+
+.calendar-quick-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.calendar-quick-actions button {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 13px;
+  color: #475569;
+  background: #eef2f6;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.calendar-quick-actions button.is-primary {
+  color: #fff;
+  background: #2563eb;
+}
+
+.calendar-quick-actions button:disabled,
+.calendar-quick-modal-head > button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 760px) {
+  .calendar-help-lines {
+    font-size: 10px;
+  }
+
+  .calendar-item-chip.is-goal.is-range-start,
+  .calendar-item-chip.is-goal.is-range-middle,
+  .calendar-item-chip.is-goal.is-range-end {
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 6px;
+  }
+}
+
+/* completed goal state */
+.calendar-item-chip.is-goal.is-completed{color:#4b5563;background:#eef2f3;opacity:.82}
+.calendar-item-chip.is-goal.is-completed .calendar-chip-title{text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:#64748b}
+.calendar-complete-mark{flex:0 0 auto;display:grid;place-items:center;width:14px;height:14px;border-radius:50%;background:#16a34a;color:#fff;font-size:9px;font-weight:900}
+.calendar-selected-list button.is-completed{background:#f8faf9;border-color:#d9e6de}
+.calendar-selected-list button.is-completed strong{text-decoration:line-through;color:#64748b}
+.calendar-record-type.is-goal.is-completed{color:#166534;background:#dcfce7}
