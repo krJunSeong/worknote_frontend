@@ -1,7 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signup } from "../api/authApi";
 import LanguageSelector from "../components/LanguageSelector";
+import AuthColdStartNotice from "../components/AuthColdStartNotice";
+import AuthServerLoadingOverlay from "../components/AuthServerLoadingOverlay";
 import { useLanguage } from "../i18n/LanguageContext";
 import {
   LOGIN_ID_MAX_LENGTH,
@@ -13,6 +15,14 @@ import {
   isNicknameLengthValid,
   isSignupPasswordLengthValid,
 } from "../utils/authValidation";
+import {
+  AUTH_LOADING_OVERLAY_DELAY_MS,
+  AUTH_LOADING_OVERLAY_MIN_VISIBLE_MS,
+  AUTH_LOADING_SUCCESS_VISIBLE_MS,
+  AUTH_PROGRESS_UPDATE_INTERVAL_MS,
+  AUTH_REQUEST_TIMEOUT_MS,
+  calculateAuthEstimatedProgress,
+} from "../utils/authColdStart";
 import "./AuthPage.css";
 
 function SignupPage() {
@@ -29,7 +39,17 @@ function SignupPage() {
   const [nicknameTouched, setNicknameTouched] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
+  const [signupProgress, setSignupProgress] = useState(1);
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const [connectionComplete, setConnectionComplete] = useState(false);
   const [serverError, setServerError] = useState("");
+
+  const loadingOverlayTimerRef = useRef(null);
+  const loadingProgressTimerRef = useRef(null);
+  const loadingStartedAtRef = useRef(0);
+  const loadingOverlayShownAtRef = useRef(0);
+  const signupRequestInFlightRef = useRef(false);
 
   const loginIdLengthInvalid = useMemo(() => {
     if (!loginId.trim()) return false;
@@ -85,12 +105,113 @@ function SignupPage() {
   const showNicknameCharacterError =
     (nicknameTouched || submitted) && !showNicknameLengthError && nicknameCharacterInvalid;
 
+  useEffect(() => {
+    return () => {
+      if (loadingOverlayTimerRef.current) {
+        window.clearTimeout(loadingOverlayTimerRef.current);
+      }
+
+      if (loadingProgressTimerRef.current) {
+        window.clearInterval(loadingProgressTimerRef.current);
+      }
+    };
+  }, []);
+
+  const clearLoadingTimers = () => {
+    if (loadingOverlayTimerRef.current) {
+      window.clearTimeout(loadingOverlayTimerRef.current);
+      loadingOverlayTimerRef.current = null;
+    }
+
+    if (loadingProgressTimerRef.current) {
+      window.clearInterval(loadingProgressTimerRef.current);
+      loadingProgressTimerRef.current = null;
+    }
+  };
+
+  const startLoadingFeedback = () => {
+    setLoading(true);
+    setSignupProgress(1);
+    setElapsedMs(0);
+    setConnectionComplete(false);
+    loadingStartedAtRef.current = Date.now();
+    loadingOverlayShownAtRef.current = 0;
+
+    loadingProgressTimerRef.current = window.setInterval(() => {
+      const currentElapsed = Date.now() - loadingStartedAtRef.current;
+      setElapsedMs(currentElapsed);
+      setSignupProgress(calculateAuthEstimatedProgress(currentElapsed));
+    }, AUTH_PROGRESS_UPDATE_INTERVAL_MS);
+
+    loadingOverlayTimerRef.current = window.setTimeout(() => {
+      loadingOverlayShownAtRef.current = Date.now();
+      setShowLoadingOverlay(true);
+    }, AUTH_LOADING_OVERLAY_DELAY_MS);
+  };
+
+  const stopLoadingFeedback = async () => {
+    clearLoadingTimers();
+
+    if (loadingOverlayShownAtRef.current > 0) {
+      const visibleFor = Date.now() - loadingOverlayShownAtRef.current;
+      const remaining = Math.max(
+        0,
+        AUTH_LOADING_OVERLAY_MIN_VISIBLE_MS - visibleFor
+      );
+
+      if (remaining > 0) {
+        await new Promise((resolve) => window.setTimeout(resolve, remaining));
+      }
+    }
+
+    setShowLoadingOverlay(false);
+    setLoading(false);
+    setConnectionComplete(false);
+    signupRequestInFlightRef.current = false;
+    loadingStartedAtRef.current = 0;
+    loadingOverlayShownAtRef.current = 0;
+  };
+
+  const completeLoadingFeedback = async () => {
+    clearLoadingTimers();
+
+    const finalElapsed = loadingStartedAtRef.current
+      ? Date.now() - loadingStartedAtRef.current
+      : 0;
+
+    setElapsedMs(finalElapsed);
+    setSignupProgress(100);
+    setConnectionComplete(true);
+
+    if (loadingOverlayShownAtRef.current > 0) {
+      const visibleFor = Date.now() - loadingOverlayShownAtRef.current;
+      const minVisibleRemaining = Math.max(
+        0,
+        AUTH_LOADING_OVERLAY_MIN_VISIBLE_MS - visibleFor
+      );
+
+      await new Promise((resolve) =>
+        window.setTimeout(
+          resolve,
+          Math.max(AUTH_LOADING_SUCCESS_VISIBLE_MS, minVisibleRemaining)
+        )
+      );
+    }
+
+    setShowLoadingOverlay(false);
+    setLoading(false);
+    signupRequestInFlightRef.current = false;
+    loadingStartedAtRef.current = 0;
+    loadingOverlayShownAtRef.current = 0;
+  };
+
   const handleSignup = async (event) => {
     event.preventDefault();
     setSubmitted(true);
     setServerError("");
 
     if (
+      signupRequestInFlightRef.current ||
       !loginId.trim() ||
       loginIdLengthInvalid ||
       loginIdCharacterInvalid ||
@@ -106,32 +227,55 @@ function SignupPage() {
       return;
     }
 
+    signupRequestInFlightRef.current = true;
+    startLoadingFeedback();
+
     try {
-      setLoading(true);
+      await signup(
+        {
+          loginId: loginId.trim(),
+          password,
+          nickname: nickname.trim(),
+        },
+        {
+          timeout: AUTH_REQUEST_TIMEOUT_MS,
+        }
+      );
 
-      await signup({
-        loginId: loginId.trim(),
-        password,
-        nickname: nickname.trim(),
-      });
-
+      await completeLoadingFeedback();
       alert(t("auth.signupSuccess"));
       navigate("/login", { replace: true });
     } catch (error) {
       console.error("Signup failed:", error);
 
+      const status = error.response?.status;
+      const isTimeout =
+        error.code === "ECONNABORTED" ||
+        String(error.message || "").toLowerCase().includes("timeout");
+      const isNetworkError = !error.response && !isTimeout;
       const serverMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
         error.response?.data;
 
-      setServerError(
-        typeof serverMessage === "string"
-          ? serverMessage
-          : t("auth.signupError")
-      );
-    } finally {
-      setLoading(false);
+      await stopLoadingFeedback();
+
+      if (isTimeout) {
+        setServerError(t("auth.signupServerTimeoutError"));
+        return;
+      }
+
+      if (isNetworkError) {
+        setServerError(t("auth.signupServerConnectionError"));
+        return;
+      }
+
+      if ((status === 400 || status === 409) && typeof serverMessage === "string") {
+        setServerError(serverMessage);
+        return;
+      }
+
+      setServerError(t("auth.signupServerError"));
     }
   };
 
@@ -176,6 +320,8 @@ function SignupPage() {
             <h2>{t("auth.signupTitle")}</h2>
             <p>{t("auth.signupDescription")}</p>
           </div>
+
+          <AuthColdStartNotice />
 
           <form className="auth-form" onSubmit={handleSignup} noValidate>
             <label className="auth-field">
@@ -350,7 +496,10 @@ function SignupPage() {
               type="submit"
               disabled={loading}
             >
-              {loading ? t("auth.signingUp") : t("auth.signupButton")}
+              {loading && (
+                <span className="auth-button-spinner" aria-hidden="true" />
+              )}
+              <span>{loading ? t("auth.signingUp") : t("auth.signupButton")}</span>
             </button>
           </form>
 
@@ -366,6 +515,15 @@ function SignupPage() {
           </div>
         </div>
       </section>
+
+      {showLoadingOverlay && (
+        <AuthServerLoadingOverlay
+          progress={signupProgress}
+          elapsedMs={elapsedMs}
+          connectionComplete={connectionComplete}
+          mode="signup"
+        />
+      )}
     </main>
   );
 }

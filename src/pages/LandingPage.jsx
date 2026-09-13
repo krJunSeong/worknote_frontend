@@ -49,6 +49,8 @@ const COPY = {
     securityText: "초기에는 Dashboard URL에 userId를 전달했지만, 브라우저나 직접 API 호출에서 값이 바뀔 수 있어 JWT에서 로그인 사용자를 확인하는 방식으로 변경했습니다.",
     before: "BEFORE",
     after: "AFTER",
+    beforeCardTitle: "클라이언트 의존 사용자 식별",
+    afterCardTitle: "JWT 기준 사용자 확정",
     beforeLines: ["Dashboard 요청에 사용자 식별값 포함", "Client가 식별값을 전달", "브라우저에서 값 조작 가능성"],
     afterLines: ["Dashboard 요청은 인증 정보만 사용", "JWT에서 로그인 사용자 확인", "인증된 사용자 데이터만 조회"],
     securityChecks: [
@@ -80,12 +82,12 @@ const COPY = {
     eyebrow: "AI-POWERED DEVELOPER WORK JOURNAL",
     hero1: "毎日の業務記録を",
     hero2: "説明できる成長データへ",
-    intro: "業務日誌をAIが要約・技術タグ・想定面接質問として構造化し、カレンダー・目標・ダッシュボード・レポートで再利用できるエンジニア向け業務記録サービスです。",
+    intro: "業務記録をAIで要約・技術タグ・想定面接質問へ整理し、カレンダー・目標・ダッシュボード・レポートで振り返れるエンジニア向けサービスです。",
     demoBtn: "30秒デモを体験",
     tryBtn: "実際に使う",
     proof: ["JWT認証", "所有権チェック", "AI・OCR日次制限", "Calendar D&D", "Azure OCR", "PDF Report"],
     demoEyebrow: "30 SECOND INTERACTIVE DEMO",
-    demoTitle: "1件の記録が、どのように成長データへ変わるのか",
+    demoTitle: "1件の業務記録が、どのように成長データへ変わるのか",
     demoText: "タイトルと業務内容を実際に入力し、分析結果が生成される流れをログインせずに体験できます。下のボタンからインタラクティブデモを開始できます。",
     demoSteps: [
       ["業務記録", "Spring Securityで他ユーザーのDashboardへアクセスできる可能性を確認し、権限チェックを修正した。"],
@@ -120,6 +122,8 @@ const COPY = {
     securityText: "初期版ではDashboard URLにuserIdを渡していましたが、ブラウザやAPIから値を変更できるため、JWTからログインユーザーを確定する方式へ変更しました。",
     before: "BEFORE",
     after: "AFTER",
+    beforeCardTitle: "クライアント依存のユーザー識別",
+    afterCardTitle: "JWT基準のユーザー確定",
     beforeLines: ["Dashboard要求にユーザー識別値を含める", "Clientが識別値を渡す", "ブラウザから値を変更できる可能性"],
     afterLines: ["Dashboard要求は認証情報のみ利用", "JWTからログインユーザーを確定", "認証済みユーザーのデータのみ取得"],
     securityChecks: [
@@ -222,7 +226,7 @@ const STACKS = [
 
 function LandingPage() {
   const navigate = useNavigate();
-  const [language, setLanguage] = useState(localStorage.getItem("language") === "ja" ? "ja" : "ko");
+  const [language, setLanguage] = useState(localStorage.getItem("language") === "ko" ? "ko" : "ja");
   const [demoStep, setDemoStep] = useState(0);
   const [demoCycleKey, setDemoCycleKey] = useState(0);
   const [demoPaused, setDemoPaused] = useState(false);
@@ -418,9 +422,9 @@ function LandingPage() {
   const interactiveResult = buildInteractiveResult();
 
   return (
-    <div className="landing-v2">
+    <div className="landing-v2" lang={language === "ja" ? "ja" : "ko"}>
       <header className="landing-header-v2">
-        <a href="/" className="brand-v2"><b>W</b><span>WorkNote</span></a>
+        <button type="button" className="brand-v2" onClick={() => navigate("/login")} aria-label={language === "ja" ? "ログイン画面へ" : "로그인 화면으로 이동"}><b>W</b><span>WorkNote</span></button>
         <nav>
           <button onClick={openInteractiveDemo}>{c.nav[0]}</button>
           <button onClick={() => scroll("features")}>{c.nav[1]}</button>
@@ -538,9 +542,9 @@ function LandingPage() {
         <section className="landing-section security-section">
           <div className="section-heading"><span>SECURITY HARDENING</span><h2>{c.securityTitle}</h2><p>{c.securityText}</p></div>
           <div className="security-before-after">
-            <article className="before-card"><header><span>{c.before}</span><b>Client-trusted ID</b></header>{c.beforeLines.map((line, i) => <p key={line}><i>{i + 1}</i>{line}</p>)}</article>
+            <article className="before-card"><header><span>{c.before}</span><b>{c.beforeCardTitle}</b></header>{c.beforeLines.map((line, i) => <p key={line}><i>{i + 1}</i>{line}</p>)}</article>
             <div className="security-arrow"><span>REVIEW</span><b>→</b></div>
-            <article className="after-card"><header><span>{c.after}</span><b>JWT-owned identity</b></header>{c.afterLines.map((line, i) => <p key={line}><i>{i + 1}</i>{line}</p>)}</article>
+            <article className="after-card"><header><span>{c.after}</span><b>{c.afterCardTitle}</b></header>{c.afterLines.map((line, i) => <p key={line}><i>{i + 1}</i>{line}</p>)}</article>
           </div>
           <div className="security-checks">{c.securityChecks.map(([risk, defense]) => <article key={risk}><span>✓</span><div><small>{risk}</small><b>{defense}</b></div></article>)}</div>
         </section>

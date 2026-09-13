@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import LanguageSelector from "../components/LanguageSelector";
+import AuthColdStartNotice from "../components/AuthColdStartNotice";
+import AuthServerLoadingOverlay from "../components/AuthServerLoadingOverlay";
 import { useLanguage } from "../i18n/LanguageContext";
 import {
   LOGIN_ID_MAX_LENGTH,
@@ -10,88 +12,19 @@ import {
   isLoginIdLengthValid,
   isLoginPasswordLengthValid,
 } from "../utils/authValidation";
+import {
+  AUTH_LOADING_OVERLAY_DELAY_MS,
+  AUTH_LOADING_OVERLAY_MIN_VISIBLE_MS,
+  AUTH_LOADING_SUCCESS_VISIBLE_MS,
+  AUTH_PROGRESS_UPDATE_INTERVAL_MS,
+  AUTH_REQUEST_TIMEOUT_MS,
+  calculateAuthEstimatedProgress,
+} from "../utils/authColdStart";
 import "./AuthPage.css";
-const LOADING_OVERLAY_DELAY_MS = 250;
-const LOADING_OVERLAY_MIN_VISIBLE_MS = 400;
-const LOADING_SUCCESS_VISIBLE_MS = 500;
-const PROGRESS_UPDATE_INTERVAL_MS = 250;
-
-function readPositiveNumber(value, fallback) {
-  const parsed = Number(value);
-
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return fallback;
-  }
-
-  return parsed;
-}
-
-const LOGIN_COLD_START_ESTIMATE_MS = readPositiveNumber(
-  import.meta.env.VITE_LOGIN_COLD_START_ESTIMATE_MS,
-  150000
-);
-
-const LOGIN_TIMEOUT_MS = Math.max(
-  readPositiveNumber(
-    import.meta.env.VITE_LOGIN_TIMEOUT_MS,
-    600000
-  ),
-  LOGIN_COLD_START_ESTIMATE_MS + 1000
-);
-
-function calculateEstimatedProgress(elapsedMs) {
-  if (elapsedMs <= 0) {
-    return 1;
-  }
-
-  if (elapsedMs <= LOGIN_COLD_START_ESTIMATE_MS) {
-    const ratio = elapsedMs / LOGIN_COLD_START_ESTIMATE_MS;
-    return Math.min(95, Math.max(1, Math.round(1 + ratio * 94)));
-  }
-
-  const overtimeWindow = Math.max(
-    1,
-    LOGIN_TIMEOUT_MS - LOGIN_COLD_START_ESTIMATE_MS
-  );
-  const overtimeRatio = Math.min(
-    1,
-    (elapsedMs - LOGIN_COLD_START_ESTIMATE_MS) / overtimeWindow
-  );
-
-  return Math.min(99, Math.round(95 + overtimeRatio * 4));
-}
-
-function formatDuration(durationMs, language) {
-  const totalSeconds = Math.max(0, Math.ceil(durationMs / 1000));
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-
-  if (language === "ja") {
-    if (minutes === 0) {
-      return `${seconds}秒`;
-    }
-
-    if (seconds === 0) {
-      return `${minutes}分`;
-    }
-
-    return `${minutes}分 ${seconds}秒`;
-  }
-
-  if (minutes === 0) {
-    return `${seconds}초`;
-  }
-
-  if (seconds === 0) {
-    return `${minutes}분`;
-  }
-
-  return `${minutes}분 ${seconds}초`;
-}
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   const [loginId, setLoginId] = useState("");
   const [loginIdTouched, setLoginIdTouched] = useState(false);
@@ -175,13 +108,13 @@ function LoginPage() {
     loadingProgressTimerRef.current = window.setInterval(() => {
       const currentElapsed = Date.now() - loadingStartedAtRef.current;
       setElapsedMs(currentElapsed);
-      setLoginProgress(calculateEstimatedProgress(currentElapsed));
-    }, PROGRESS_UPDATE_INTERVAL_MS);
+      setLoginProgress(calculateAuthEstimatedProgress(currentElapsed));
+    }, AUTH_PROGRESS_UPDATE_INTERVAL_MS);
 
     loadingOverlayTimerRef.current = window.setTimeout(() => {
       loadingOverlayShownAtRef.current = Date.now();
       setShowLoadingOverlay(true);
-    }, LOADING_OVERLAY_DELAY_MS);
+    }, AUTH_LOADING_OVERLAY_DELAY_MS);
   };
 
   const stopLoadingFeedback = async () => {
@@ -191,7 +124,7 @@ function LoginPage() {
       const visibleFor = Date.now() - loadingOverlayShownAtRef.current;
       const remaining = Math.max(
         0,
-        LOADING_OVERLAY_MIN_VISIBLE_MS - visibleFor
+        AUTH_LOADING_OVERLAY_MIN_VISIBLE_MS - visibleFor
       );
 
       if (remaining > 0) {
@@ -222,13 +155,13 @@ function LoginPage() {
       const visibleFor = Date.now() - loadingOverlayShownAtRef.current;
       const minVisibleRemaining = Math.max(
         0,
-        LOADING_OVERLAY_MIN_VISIBLE_MS - visibleFor
+        AUTH_LOADING_OVERLAY_MIN_VISIBLE_MS - visibleFor
       );
 
       await new Promise((resolve) =>
         window.setTimeout(
           resolve,
-          Math.max(LOADING_SUCCESS_VISIBLE_MS, minVisibleRemaining)
+          Math.max(AUTH_LOADING_SUCCESS_VISIBLE_MS, minVisibleRemaining)
         )
       );
     }
@@ -285,7 +218,7 @@ function LoginPage() {
           password,
         },
         {
-          timeout: LOGIN_TIMEOUT_MS,
+          timeout: AUTH_REQUEST_TIMEOUT_MS,
         }
       );
 
@@ -335,13 +268,6 @@ function LoginPage() {
   const passwordInvalid =
     passwordRequired || showPasswordFormatError || failedFields.password;
 
-  const estimateExceeded =
-    elapsedMs > LOGIN_COLD_START_ESTIMATE_MS && !connectionComplete;
-  const expectedRemainingMs = Math.max(
-    0,
-    LOGIN_COLD_START_ESTIMATE_MS - elapsedMs
-  );
-
   return (
     <main className="auth-page">
       <header className="auth-topbar">
@@ -390,6 +316,8 @@ function LoginPage() {
             <h2>{t("auth.loginTitle")}</h2>
             <p>{t("auth.loginDescription")}</p>
           </div>
+
+          <AuthColdStartNotice />
 
           <form
             className="auth-form"
@@ -492,161 +420,12 @@ function LoginPage() {
       </section>
 
       {showLoadingOverlay && (
-        <div
-          className="auth-loading-overlay"
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-          aria-labelledby="login-loading-title"
-          aria-describedby="login-loading-description"
-        >
-          <div className="auth-loading-card">
-            <div className="auth-loading-brand-row">
-              <span className="auth-loading-brand-mark" aria-hidden="true">
-                W
-              </span>
-              <div className="auth-loading-brand-copy">
-                <strong>WorkNote</strong>
-                <span>
-                  {connectionComplete
-                    ? t("auth.loginLoadingCompleteStatus")
-                    : estimateExceeded
-                      ? t("auth.loginLoadingOverEstimateStatus")
-                      : t("auth.loginLoadingStatus")}
-                </span>
-              </div>
-            </div>
-
-
-            <div
-              className={`auth-loading-visual ${
-                connectionComplete
-                  ? "is-complete"
-                  : estimateExceeded
-                    ? "is-overtime"
-                    : ""
-              }`}
-              aria-hidden="true"
-            >
-              <span className="auth-loading-orbit auth-loading-orbit-one">
-                <i />
-              </span>
-              <span className="auth-loading-orbit auth-loading-orbit-two">
-                <i />
-              </span>
-              <span className="auth-loading-pulse auth-loading-pulse-one" />
-              <span className="auth-loading-pulse auth-loading-pulse-two" />
-
-              <div className="auth-loading-server">
-                <span className="auth-loading-server-face">
-                  <b>{connectionComplete ? "✓" : "W"}</b>
-                </span>
-                <span className="auth-loading-server-lights">
-                  <i />
-                  <i />
-                  <i />
-                </span>
-              </div>
-
-              <span className="auth-loading-signal auth-loading-signal-left">
-                <i />
-              </span>
-              <span className="auth-loading-signal auth-loading-signal-right">
-                <i />
-              </span>
-            </div>
-
-            <div className="auth-loading-progress-head">
-              <span>{t("auth.loginLoadingProgressEstimate")}</span>
-              <strong>{loginProgress}%</strong>
-            </div>
-
-            <div
-              className={`auth-loading-progress ${
-                connectionComplete ? "is-complete" : ""
-              }`}
-              role="progressbar"
-              aria-label={t("auth.loginLoadingProgressLabel")}
-              aria-valuemin="0"
-              aria-valuemax="100"
-              aria-valuenow={loginProgress}
-            >
-              <span style={{ width: `${loginProgress}%` }} />
-            </div>
-
-            <div className="auth-loading-time-grid">
-              <div>
-                <span>{t("auth.loginLoadingEstimatedTimeLabel")}</span>
-                <strong>
-                  {formatDuration(LOGIN_COLD_START_ESTIMATE_MS, language)}
-                </strong>
-              </div>
-              <div>
-                <span>
-                  {estimateExceeded
-                    ? t("auth.loginLoadingElapsedTimeLabel")
-                    : t("auth.loginLoadingRemainingTimeLabel")}
-                </span>
-                <strong>
-                  {formatDuration(
-                    estimateExceeded ? elapsedMs : expectedRemainingMs,
-                    language
-                  )}
-                </strong>
-              </div>
-            </div>
-
-            <div className="auth-loading-copy">
-              <h2 id="login-loading-title">
-                {connectionComplete
-                  ? t("auth.loginLoadingCompleteTitle")
-                  : estimateExceeded
-                    ? t("auth.loginLoadingOverEstimateTitle")
-                    : t("auth.loginLoadingTitle")}
-              </h2>
-              <p id="login-loading-description">
-                {connectionComplete ? (
-                  t("auth.loginLoadingCompleteDescription")
-                ) : estimateExceeded ? (
-                  <>
-                    {t("auth.loginLoadingOverEstimateDescriptionPrefix")}
-                    <strong>
-                      {formatDuration(LOGIN_TIMEOUT_MS, language)}
-                    </strong>
-                    {t("auth.loginLoadingOverEstimateDescriptionSuffix")}
-                  </>
-                ) : (
-                  <>
-                    {t("auth.loginLoadingDescriptionPrefix")}
-                    <strong>
-                      {formatDuration(
-                        LOGIN_COLD_START_ESTIMATE_MS,
-                        language
-                      )}
-                    </strong>
-                    {t("auth.loginLoadingDescriptionSuffix")}
-                  </>
-                )}
-              </p>
-            </div>
-
-            <div className="auth-loading-note">
-              <span
-                className={`auth-loading-note-dot ${
-                  connectionComplete ? "is-complete" : ""
-                }`}
-                aria-hidden="true"
-              />
-              <span>
-                {connectionComplete
-                  ? t("auth.loginLoadingCompleteGuide")
-                  : estimateExceeded
-                    ? t("auth.loginLoadingOverEstimateGuide")
-                    : t("auth.loginLoadingGuide")}
-              </span>
-            </div>
-          </div>
-        </div>
+        <AuthServerLoadingOverlay
+          progress={loginProgress}
+          elapsedMs={elapsedMs}
+          connectionComplete={connectionComplete}
+          mode="login"
+        />
       )}
     </main>
   );

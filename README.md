@@ -2,9 +2,6 @@
 
 WorkNote は、日々の業務記録を蓄積し、AI要約・技術タグ・想定面接質問・レポートへつなげるポートフォリオ用Webアプリです。
 
-[Site](https://worknote-ai.vercel.app/)
-
-[Youtube](https://www.youtube.com/watch?v=eNSDhhIoi3c)
 ## 主な機能
 
 - ログイン / 会員登録
@@ -121,3 +118,9 @@ Set `VITE_GITHUB_URL` in `.env` to expose the GitHub link on the landing page.
 ## Landing Page Interactive Demo
 
 The landing page includes a login-free 30-second interactive demo. Visitors can edit a sample work log, run a browser-side demo analysis, and preview the summary, tech tags, difficulty, interview question, and the Work Log → AI → Calendar → Dashboard flow. The landing demo does not call the production AI/OCR APIs or consume user quotas.
+
+
+### Login / Signup cold-start UX
+- Both login and signup show a first-request server wake-up notice.
+- Signup uses the same timed loading overlay and request timeout as login.
+- Fast responses continue immediately; slow Render wake-ups show estimated progress.

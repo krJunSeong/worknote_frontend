@@ -82,6 +82,21 @@ const translations = {
       loginServerError:
         "로그인 처리 중 서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
       signingUp: "회원가입 중...",
+      coldStartNoticeTitle: "첫 요청은 서버 준비 시간이 필요할 수 있습니다",
+      coldStartNoticeDescriptionPrefix:
+        "로그인 또는 회원가입을 처음 시도할 때 서버가 대기 상태라면 약 ",
+      coldStartNoticeDescriptionSuffix:
+        " 정도 걸릴 수 있습니다. 경우에 따라 더 오래 걸릴 수 있으며, 서버가 준비되면 자동으로 계속 진행됩니다.",
+      signupLoadingDescriptionSuffix:
+        "를 예상하고 있습니다. 실제 서버 응답이 더 빠르게 도착하면 진행률을 즉시 100%로 완료하고 회원가입을 계속합니다.",
+      signupLoadingCompleteDescription:
+        "회원가입 응답을 확인했습니다. 잠시 후 로그인 화면으로 이동합니다.",
+      signupServerTimeoutError:
+        "10분 동안 서버의 응답이 없어 회원가입을 중단했습니다. 현재 서버에 문제가 있거나 일시적으로 사용할 수 없는 상태일 수 있습니다. 잠시 후 다시 시도해 주세요.",
+      signupServerConnectionError:
+        "서버에 연결할 수 없습니다. 네트워크 또는 서버 상태를 확인한 뒤 다시 시도해 주세요.",
+      signupServerError:
+        "회원가입 처리 중 서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
 
       loginIdRequired: "아이디를 입력해 주세요.",
       loginIdLengthGuide: "아이디는 4자 이상 20자 이하로 입력해 주세요.",
@@ -557,6 +572,21 @@ const translations = {
       loginServerError:
         "ログイン処理中にサーバーエラーが発生しました。しばらくしてからもう一度お試しください。",
       signingUp: "登録中...",
+      coldStartNoticeTitle: "初回リクエストはサーバー準備に時間がかかる場合があります",
+      coldStartNoticeDescriptionPrefix:
+        "ログインまたは会員登録を初めて行う際、サーバーが休止状態の場合は約 ",
+      coldStartNoticeDescriptionSuffix:
+        " ほどかかる場合があります。状況によってはさらに時間がかかることがありますが、サーバーの準備が完了すると自動的に処理を続行します。",
+      signupLoadingDescriptionSuffix:
+        "を目安としています。実際のサーバー応答が早く届いた場合は、進行率をすぐに100%にして会員登録を続行します。",
+      signupLoadingCompleteDescription:
+        "会員登録の応答を確認しました。まもなくログイン画面へ移動します。",
+      signupServerTimeoutError:
+        "10分間サーバーから応答がなかったため、会員登録を中断しました。現在サーバーに問題があるか、一時的に利用できない可能性があります。しばらくしてからもう一度お試しください。",
+      signupServerConnectionError:
+        "サーバーに接続できません。ネットワークまたはサーバーの状態を確認してから、もう一度お試しください。",
+      signupServerError:
+        "会員登録処理中にサーバーエラーが発生しました。しばらくしてからもう一度お試しください。",
 
       loginIdRequired:
         "IDを入力してください。",
