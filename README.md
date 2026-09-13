@@ -2,6 +2,10 @@
 
 WorkNote は、日々の業務記録を蓄積し、AI要約・技術タグ・想定面接質問・レポートへつなげるポートフォリオ用Webアプリです。
 
+[Site](https://worknote-ai.vercel.app/)
+
+[Youtube](https://www.youtube.com/watch?v=eNSDhhIoi3c)
+
 ## 主な機能
 
 - ログイン / 会員登録
