@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import LanguageSelector from "../components/LanguageSelector";
-import { useLanguage } from "../i18n/LanguageContext";
 import "./LandingPage.css";
 
 const COPY = {
@@ -224,7 +222,7 @@ const STACKS = [
 
 function LandingPage() {
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const [language, setLanguage] = useState(localStorage.getItem("language") === "ja" ? "ja" : "ko");
   const [demoStep, setDemoStep] = useState(0);
   const [demoCycleKey, setDemoCycleKey] = useState(0);
   const [demoPaused, setDemoPaused] = useState(false);
@@ -238,6 +236,10 @@ function LandingPage() {
   const c = COPY[language];
   const interactiveCopy = INTERACTIVE_DEMO_COPY[language];
   const githubUrl = import.meta.env.VITE_GITHUB_URL?.trim();
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
 
   useEffect(() => {
     if (interactiveDemoOpen || demoPaused) return undefined;
@@ -260,6 +262,11 @@ function LandingPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [interactiveDemoOpen]);
+
+  const changeLanguage = (next) => {
+    setLanguage(next);
+    localStorage.setItem("language", next);
+  };
 
   const clearDemoTimers = () => {
     demoTimers.current.forEach((timer) => window.clearTimeout(timer));
@@ -422,7 +429,26 @@ function LandingPage() {
           <button onClick={() => scroll("stack")}>{c.nav[4]}</button>
         </nav>
         <div className="header-right-v2">
-          <LanguageSelector />
+          <div className="language-v2" role="group" aria-label={language === "ja" ? "言語選択" : "언어 선택"}>
+            <button
+              type="button"
+              className={language === "ko" ? "active" : ""}
+              onClick={() => changeLanguage("ko")}
+              aria-pressed={language === "ko"}
+            >
+              <span className="language-mark" aria-hidden="true">한</span>
+              <span>한국어</span>
+            </button>
+            <button
+              type="button"
+              className={language === "ja" ? "active" : ""}
+              onClick={() => changeLanguage("ja")}
+              aria-pressed={language === "ja"}
+            >
+              <span className="language-mark" aria-hidden="true">日</span>
+              <span>日本語</span>
+            </button>
+          </div>
           <button className="header-login" onClick={() => navigate("/login")}>{c.login}</button>
         </div>
       </header>
@@ -431,7 +457,7 @@ function LandingPage() {
         <section className="hero-v2">
           <div className="hero-copy-v2">
             <span className="hero-eyebrow">{c.eyebrow}</span>
-            <h1>{c.hero1}<strong>{c.hero2}</strong></h1>
+            <h1><span className="hero-title-primary">{c.hero1}</span><strong>{c.hero2}</strong></h1>
             <p>{c.intro}</p>
             <div className="hero-buttons-v2">
               <button className="btn-demo" onClick={openInteractiveDemo}><span className="play">▶</span>{c.demoBtn}</button>
@@ -450,7 +476,6 @@ function LandingPage() {
                   className={index === demoStep ? "active" : ""}
                   onClick={() => selectDemoStep(index)}
                   aria-pressed={index === demoStep}
-                  data-step={`0${index + 1}`}
                 >
                   <small>0{index + 1}</small>
                   <span>{step[0]}</span>

@@ -299,8 +299,7 @@ function LoginPage() {
     } catch (error) {
       console.error("Login failed:", error);
 
-      const serverMessage =
-        error.response?.data?.message || error.response?.data?.error;
+      const status = error.response?.status;
       const isTimeout =
         error.code === "ECONNABORTED" ||
         String(error.message || "").toLowerCase().includes("timeout");
@@ -320,8 +319,14 @@ function LoginPage() {
         return;
       }
 
-      setCredentialError(serverMessage || t("auth.loginError"));
-      setFailedFields({ loginId: true, password: true });
+      if (status === 400 || status === 401 || status === 403) {
+        setCredentialError(t("auth.loginError"));
+        setFailedFields({ loginId: true, password: true });
+        return;
+      }
+
+      setCredentialError(t("auth.loginServerError"));
+      setFailedFields({ loginId: false, password: false });
     }
   };
 
